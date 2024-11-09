@@ -22,6 +22,7 @@ path = "gitspatch/__init__.py"
 python = "3.12"
 installer = "uv"
 dependencies = [
+    "harlequin",
     "mypy",
     "ruff",
     "pytest",
@@ -46,6 +47,8 @@ lint-check = [
 ]
 docs-serve = "mkdocs serve"
 docs-build = "mkdocs build"
+server = "uvicorn gitspatch.app:app --reload"
+open_db = "harlequin -a sqlite local.db"
 
 [build-system]
 requires = ["hatchling", "hatch-regex-commit"]
@@ -64,6 +67,15 @@ classifiers = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "aiosqlite==0.20.0",
+    "alembic==1.14.0",
+    "httpx==0.27.2",
+    "jinja2==3.1.4",
+    "pydantic_settings==2.6.1",
+    "python-multipart==0.0.17",
+    "sqlalchemy[asyncio]==2.0.36",
+    "starlette==0.41.2",
+    "uvicorn==0.32.0",
 ]
 
 [project.urls]
