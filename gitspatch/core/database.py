@@ -1,7 +1,8 @@
 import contextlib
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from typing import TYPE_CHECKING
 
+from sqlalchemy import URL
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -28,25 +29,56 @@ def get_async_sessionmaker(engine: AsyncEngine) -> AsyncSessionMaker:
     return async_sessionmaker(engine, expire_on_commit=False)
 
 
+@contextlib.asynccontextmanager
+async def get_async_session(
+    async_sessionmaker: AsyncSessionMaker,
+) -> AsyncIterator[AsyncSession]:
+    async with async_sessionmaker() as session:
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+            raise
+        else:
+            await session.commit()
+
+
 class SQLAlchemyMiddleware:
-    def __init__(self, app: ASGIApp) -> None:
+    def __init__(
+        self,
+        app: ASGIApp,
+        *,
+        database_url: str | URL,
+        get_async_session: Callable[
+            [AsyncSessionMaker], contextlib.AbstractAsyncContextManager[AsyncSession]
+        ] = get_async_session,
+    ) -> None:
         self.app = app
+        self.database_url = database_url
+        self.get_async_session = get_async_session
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope["type"] not in {"http", "websocket"}:
-            await self.app(scope, receive, send)
-            return
-
-        async_sessionmaker = scope["state"]["async_sessionmaker"]
-        async with async_sessionmaker() as session:
-            scope["state"]["session"] = session
-            try:
+        if scope["type"] == "lifespan":
+            engine: AsyncEngine | None = None
+            while True:
+                message = await receive()
+                if message["type"] == "lifespan.startup":
+                    engine = create_async_engine(self.database_url, echo=True)
+                    scope["state"]["engine"] = engine
+                    scope["state"]["async_sessionmaker"] = get_async_sessionmaker(
+                        engine
+                    )
+                    await send({"type": "lifespan.startup.complete"})
+                elif message["type"] == "lifespan.shutdown":
+                    if engine is not None:
+                        await engine.dispose()
+                    await send({"type": "lifespan.shutdown.complete"})
+                    return
+        elif scope["type"] in ("http", "websocket"):
+            sessionmaker = scope["state"]["async_sessionmaker"]
+            async with self.get_async_session(sessionmaker) as session:
+                scope["state"]["session"] = session
                 await self.app(scope, receive, send)
-            except Exception:
-                await session.rollback()
-                raise
-            else:
-                await session.commit()
 
 
 __all__ = [

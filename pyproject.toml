@@ -22,6 +22,7 @@ path = "gitspatch/__init__.py"
 python = "3.12"
 installer = "uv"
 dependencies = [
+    "asgi-lifespan",
     "harlequin",
     "mypy",
     "ruff",
@@ -30,6 +31,7 @@ dependencies = [
     "mkdocs-material",
     "mkdocstrings[python]",
     "pytest-asyncio",
+    "pytest-mock",
 ]
 
 [tool.hatch.envs.default.scripts]
@@ -37,7 +39,7 @@ test = "pytest"
 test-cov-xml = "pytest --cov-report=xml"
 lint = [
   "ruff format .",
-  "ruff --fix .",
+  "ruff check --fix .",
   "mypy gitspatch/",
 ]
 lint-check = [
@@ -47,7 +49,7 @@ lint-check = [
 ]
 docs-serve = "mkdocs serve"
 docs-build = "mkdocs build"
-server = "uvicorn gitspatch.app:app --reload"
+server = "uvicorn gitspatch.main:app --reload"
 open_db = "harlequin -a sqlite local.db"
 
 [build-system]
