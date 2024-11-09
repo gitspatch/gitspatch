@@ -1,0 +1,71 @@
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+extend-select = ["I", "TRY", "UP"]
+
+[tool.pytest.ini_options]
+addopts = "--cov=gitspatch/ --cov-report=term-missing"
+asyncio_mode = "strict"
+
+[tool.hatch]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.version]
+source = "regex_commit"
+commit_extra_args = ["-e"]
+path = "gitspatch/__init__.py"
+
+[tool.hatch.envs.default]
+python = "3.12"
+installer = "uv"
+dependencies = [
+    "mypy",
+    "ruff",
+    "pytest",
+    "pytest-cov",
+    "mkdocs-material",
+    "mkdocstrings[python]",
+    "pytest-asyncio",
+]
+
+[tool.hatch.envs.default.scripts]
+test = "pytest"
+test-cov-xml = "pytest --cov-report=xml"
+lint = [
+  "ruff format .",
+  "ruff --fix .",
+  "mypy gitspatch/",
+]
+lint-check = [
+  "ruff format --check .",
+  "ruff .",
+  "mypy gitspatch/",
+]
+docs-serve = "mkdocs serve"
+docs-build = "mkdocs build"
+
+[build-system]
+requires = ["hatchling", "hatch-regex-commit"]
+build-backend = "hatchling.build"
+
+[project]
+name = "gitspatch"
+authors = [
+  { name = "gitspatch", email = "francois@francoisvoron.com" }
+]
+description = "Connect any webhook to GitHub Actions"
+readme = "README.md"
+dynamic = ["version"]
+classifiers = [
+    "Programming Language :: Python :: 3 :: Only",
+]
+requires-python = ">=3.12"
+dependencies = [
+]
+
+[project.urls]
+Documentation = "https://frankie567.github.io/gitspatch/"
+Source = "https://github.com/frankie567/gitspatch"
