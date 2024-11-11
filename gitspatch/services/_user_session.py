@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from typing import TypeVar
 
 from starlette.responses import Response
@@ -19,13 +20,15 @@ class UserSessionService:
 
     async def set_session(self, response: R, user: User) -> R:
         token, token_hash = generate_token(secret=self.settings.secret)
-        user_session = UserSession(user=user, token=token_hash)
+        expires_at = datetime.now(UTC) + self.settings.user_session_cookie_max_age
+
+        user_session = UserSession(user=user, token=token_hash, expires_at=expires_at)
         await self.repository.create(user_session)
 
         response.set_cookie(
             self.settings.user_session_cookie_name,
             token,
-            max_age=int(self.settings.user_session_cookie_max_age.total_seconds()),
+            expires=expires_at,
             secure=self.settings.user_session_cookie_secure,
             httponly=True,
         )

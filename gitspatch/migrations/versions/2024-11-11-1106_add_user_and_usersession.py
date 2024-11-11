@@ -1,8 +1,8 @@
 """Add User and UserSession
 
-Revision ID: f1d99d5df10a
+Revision ID: d1920614f5b2
 Revises:
-Create Date: 2024-11-10 15:22:47.072453
+Create Date: 2024-11-11 11:06:28.005093
 
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "f1d99d5df10a"
+revision: str = "d1920614f5b2"
 down_revision: str | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -55,6 +55,7 @@ def upgrade() -> None:
         "gitspatch_user_session",
         sa.Column("user_id", sa.CHAR(length=14), nullable=False),
         sa.Column("token", sa.String(), nullable=False),
+        sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("id", sa.CHAR(length=14), nullable=False),
         sa.Column(
             "created_at",
@@ -83,6 +84,12 @@ def upgrade() -> None:
         unique=False,
     )
     op.create_index(
+        op.f("ix_gitspatch_user_session_expires_at"),
+        "gitspatch_user_session",
+        ["expires_at"],
+        unique=False,
+    )
+    op.create_index(
         op.f("ix_gitspatch_user_session_token"),
         "gitspatch_user_session",
         ["token"],
@@ -105,6 +112,10 @@ def downgrade() -> None:
     )
     op.drop_index(
         op.f("ix_gitspatch_user_session_token"), table_name="gitspatch_user_session"
+    )
+    op.drop_index(
+        op.f("ix_gitspatch_user_session_expires_at"),
+        table_name="gitspatch_user_session",
     )
     op.drop_index(
         op.f("ix_gitspatch_user_session_created_at"),

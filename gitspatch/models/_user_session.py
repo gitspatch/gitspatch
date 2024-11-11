@@ -1,4 +1,6 @@
-from sqlalchemy import ForeignKey, String
+from datetime import datetime
+
+from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from gitspatch.models._timestamp import TimestampMixin
@@ -18,3 +20,6 @@ class UserSession(IDModel, TimestampMixin, Base):
     user = relationship("User", lazy="joined")
 
     token: Mapped[str] = mapped_column(String, nullable=False, index=True, unique=True)
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, index=True
+    )
