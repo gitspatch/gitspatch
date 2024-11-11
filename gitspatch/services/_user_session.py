@@ -44,7 +44,7 @@ class UserSessionService:
         )
         return response
 
-    async def get_authenticated_user(self, request: Request) -> User | None:
+    async def get_request_user_session(self, request: Request) -> UserSession | None:
         token = request.cookies.get(self.settings.user_session_cookie_name)
         if token is None:
             return None
@@ -55,7 +55,7 @@ class UserSessionService:
         if user_session is None:
             return None
 
-        return user_session.user
+        return user_session
 
 
 def get_user_session_service(request: Request) -> UserSessionService:
@@ -76,7 +76,8 @@ class UserSessionMiddleware:
                 settings=scope["state"]["settings"],
             )
             request = Request(scope, receive, send)
-            user = await user_session_service.get_authenticated_user(request)
-            scope["state"]["user"] = user
+            user_session = await user_session_service.get_request_user_session(request)
+            scope["state"]["user_session"] = user_session
+            scope["state"]["user"] = user_session.user if user_session else None
 
         await self.app(scope, receive, send)

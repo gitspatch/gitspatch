@@ -11,7 +11,7 @@ from gitspatch.services import UserSessionMiddleware
 from .core.database import SQLAlchemyMiddleware
 from .core.request import Request
 from .core.settings import SettingsMiddleware
-from .routes import github
+from .routes import auth, github
 
 
 async def homepage(request: Request) -> PlainTextResponse:
@@ -21,6 +21,7 @@ async def homepage(request: Request) -> PlainTextResponse:
 
 routes = [
     Route("/", homepage),
+    Mount("/auth", routes=auth),
     Mount("/github", routes=github),
 ]
 
