@@ -1,4 +1,7 @@
-from sqlalchemy import String
+from typing import Any
+
+from httpx_oauth.oauth2 import OAuth2Token
+from sqlalchemy import JSON, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from gitspatch.models._timestamp import TimestampMixin
@@ -8,8 +11,19 @@ from ._id import IDModel
 
 
 class User(IDModel, TimestampMixin, Base):
-    __tablename__ = "user"
+    __tablename__ = "users"
     __idprefix__ = "usr"
 
     email: Mapped[str] = mapped_column(String, nullable=False)
     github_account_id: Mapped[str] = mapped_column(String, nullable=False)
+    _github_token: Mapped[dict[str, Any]] = mapped_column(
+        "github_token", JSON, nullable=False
+    )
+
+    @property
+    def github_token(self) -> OAuth2Token:
+        return OAuth2Token(self._github_token)
+
+    @github_token.setter
+    def github_token(self, token: OAuth2Token) -> None:
+        self._github_token = token

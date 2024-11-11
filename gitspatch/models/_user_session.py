@@ -7,17 +7,18 @@ from gitspatch.models._timestamp import TimestampMixin
 
 from ._base import Base, get_prefixed_tablename
 from ._id import IDModel
+from ._user import User
 
 
 class UserSession(IDModel, TimestampMixin, Base):
-    __tablename__ = "user_session"
-    __idprefix__ = "usr"
+    __tablename__ = "user_sessions"
+    __idprefix__ = "ses"
 
     user_id: Mapped[str] = mapped_column(
-        ForeignKey(get_prefixed_tablename("user.id"), ondelete="cascade"),
+        ForeignKey(get_prefixed_tablename("users.id"), ondelete="cascade"),
         nullable=False,
     )
-    user = relationship("User", lazy="joined")
+    user: Mapped[User] = relationship("User", lazy="joined")
 
     token: Mapped[str] = mapped_column(String, nullable=False, index=True, unique=True)
     expires_at: Mapped[datetime] = mapped_column(

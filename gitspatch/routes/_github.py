@@ -27,6 +27,7 @@ async def callback(request: Request) -> RedirectResponse:
     if user is None:
         user = User(email=email, github_account_id=github_account_id)
         request.state.session.add(user)
+    user.github_token = token
 
     response = RedirectResponse(request.url_for("homepage"), 303)
     user_session_service = get_user_session_service(request)

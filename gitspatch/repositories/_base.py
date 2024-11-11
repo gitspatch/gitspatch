@@ -29,6 +29,12 @@ class Repository(Generic[M]):
             await self.session.flush()
         return object
 
+    async def update(self, object: M, *, autoflush: bool = True) -> M:
+        self.session.add(object)
+        if autoflush:
+            await self.session.flush()
+        return object
+
     async def delete(self, object: M) -> None:
         await self.session.delete(object)
 
