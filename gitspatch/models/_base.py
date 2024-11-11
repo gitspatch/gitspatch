@@ -1,6 +1,12 @@
 from sqlalchemy import MetaData
 from sqlalchemy.orm import DeclarativeBase
 
+TABLE_PREFIX = "gitspatch_"
+
+
+def get_prefixed_tablename(tablename: str) -> str:
+    return f"{TABLE_PREFIX}{tablename}"
+
 
 class Base(DeclarativeBase):
     metadata = MetaData(
@@ -14,5 +20,5 @@ class Base(DeclarativeBase):
     )
 
     def __init_subclass__(cls) -> None:
-        cls.__tablename__ = f"gitspatch_{cls.__tablename__}"
+        cls.__tablename__ = get_prefixed_tablename(cls.__tablename__)
         super().__init_subclass__()

@@ -2,32 +2,26 @@ from collections.abc import Sequence
 
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
-from starlette.requests import Request
 from starlette.responses import PlainTextResponse
-from starlette.routing import Route
+from starlette.routing import Mount, Route
 
 from gitspatch.core.settings import Settings
+from gitspatch.services import UserSessionMiddleware
 
 from .core.database import SQLAlchemyMiddleware
+from .core.request import Request
 from .core.settings import SettingsMiddleware
-from .models import User
+from .routes import github
 
 
 async def homepage(request: Request) -> PlainTextResponse:
-    return PlainTextResponse("Hello, world!")
-
-
-async def create_user(request: Request) -> PlainTextResponse:
-    user = User(email="foo@example.com")
-    state = request.state
-    state.session.add(user)
-    await state.session.flush()
-    return PlainTextResponse(f"User {user.id} created")
+    user = request.state.user
+    return PlainTextResponse(f"Hello, {user.email}!" if user else "Hello, world!")
 
 
 routes = [
     Route("/", homepage),
-    Route("/create_user", create_user, methods=["POST"]),
+    Mount("/github", routes=github),
 ]
 
 
@@ -49,4 +43,5 @@ class App:
             Middleware(
                 SQLAlchemyMiddleware, database_url=str(self.settings.database_url)
             ),
+            Middleware(UserSessionMiddleware),
         ]
