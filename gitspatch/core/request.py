@@ -4,12 +4,16 @@ from starlette.requests import Request as _Request
 from gitspatch.models import User, UserSession
 
 from .database import AsyncSession
+from .redis import Redis
 from .settings import Settings
+from .task import TaskQueue
 
 
 class State(_State):
     settings: Settings
     session: AsyncSession
+    redis: Redis
+    task_queue: TaskQueue
     user: User | None
     user_session: UserSession | None
 

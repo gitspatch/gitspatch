@@ -5,6 +5,7 @@ from starlette.responses import Response
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from gitspatch.core.crypto import generate_token
+from gitspatch.core.logging import get_logger
 from gitspatch.core.request import Request
 from gitspatch.core.settings import Settings
 from gitspatch.models import User, UserSession
@@ -71,6 +72,7 @@ def get_user_session_service(request: Request) -> UserSessionService:
 class UserSessionMiddleware:
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
+        self._logger = get_logger()
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] in ("http", "websocket"):
@@ -82,5 +84,12 @@ class UserSessionMiddleware:
             user_session = await user_session_service.get_request_user_session(request)
             scope["state"]["user_session"] = user_session
             scope["state"]["user"] = user_session.user if user_session else None
+
+            if user_session:
+                scope["state"]["user"] = user_session.user
+                self._logger.debug("User authenticated", user_id=user_session.user.id)
+            else:
+                scope["state"]["user"] = None
+                self._logger.debug("Anonymous user")
 
         await self.app(scope, receive, send)

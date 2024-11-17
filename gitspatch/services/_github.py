@@ -1,5 +1,6 @@
 import dataclasses
 import time
+from typing import Any
 
 import httpx
 from httpx_oauth.oauth2 import OAuth2Token
@@ -109,6 +110,24 @@ class GitHubService:
             owner=repository["owner"]["login"],
             installation_id=installation_id,
         )
+
+    async def create_workflow_dispatch_event(
+        self,
+        owner: str,
+        repository: str,
+        workflow_id: str,
+        access_token: str,
+        inputs: dict[str, Any],
+    ) -> None:
+        response = await self._client.post(
+            f"/repos/{owner}/{repository}/actions/workflows/{workflow_id}/dispatches",
+            headers={"Authorization": f"Bearer {access_token}"},
+            json={
+                "ref": "main",
+                "inputs": inputs,
+            },
+        )
+        response.raise_for_status()
 
     def _get_app_jwt(self) -> str:
         claims = {

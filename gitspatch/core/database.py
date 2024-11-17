@@ -9,7 +9,9 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from starlette.types import ASGIApp, Receive, Scope, Send
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
+
+from .logging import get_logger
 
 if TYPE_CHECKING:
     from .settings import Settings
@@ -56,11 +58,12 @@ class SQLAlchemyMiddleware:
         self.app = app
         self.database_url = database_url
         self.get_async_session = get_async_session
+        self._logger = get_logger()
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
         if scope["type"] == "lifespan":
-            engine: AsyncEngine | None = None
-            while True:
+
+            async def receive_lifespan() -> Message:
                 message = await receive()
                 if message["type"] == "lifespan.startup":
                     engine = create_async_engine(self.database_url, echo=True)
@@ -68,20 +71,26 @@ class SQLAlchemyMiddleware:
                     scope["state"]["async_sessionmaker"] = get_async_sessionmaker(
                         engine
                     )
-                    await send({"type": "lifespan.startup.complete"})
+                    self._logger.info("Created database engine")
                 elif message["type"] == "lifespan.shutdown":
+                    engine = scope["state"].get("engine")
                     if engine is not None:
                         await engine.dispose()
-                    await send({"type": "lifespan.shutdown.complete"})
-                    return
+                        self._logger.info("Closed connections to database engine")
+                return message
+
+            await self.app(scope, receive_lifespan, send)
         elif scope["type"] in ("http", "websocket"):
             sessionmaker = scope["state"]["async_sessionmaker"]
             async with self.get_async_session(sessionmaker) as session:
                 scope["state"]["session"] = session
+                self._logger.debug("Created database session")
                 await self.app(scope, receive, send)
+            self._logger.debug("Committed database session")
 
 
 __all__ = [
+    "create_async_engine",
     "get_async_engine",
     "get_async_sessionmaker",
     "SQLAlchemyMiddleware",

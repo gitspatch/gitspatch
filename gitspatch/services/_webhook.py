@@ -37,6 +37,12 @@ class WebhookService:
 
         return webhook, token
 
+    async def get_by_token(self, token: str) -> Webhook | None:
+        webhook = await self._repository.get_by_token(
+            token, secret=self._settings.secret
+        )
+        return webhook
+
 
 def get_webhook_service(request: Request) -> WebhookService:
     return WebhookService(

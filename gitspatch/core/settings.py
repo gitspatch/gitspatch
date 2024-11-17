@@ -1,8 +1,10 @@
+import logging
 from datetime import timedelta
+from enum import StrEnum
 from typing import Annotated
 
 from httpx_oauth.clients.github import GitHubOAuth2
-from pydantic import UrlConstraints
+from pydantic import BeforeValidator, RedisDsn, UrlConstraints
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from starlette.types import ASGIApp, Receive, Scope, Send
@@ -18,9 +20,30 @@ DatabaseDsn = Annotated[
 ]
 
 
+class Environment(StrEnum):
+    DEVELOPMENT = "DEVELOPMENT"
+    PRODUCTION = "PRODUCTION"
+
+
+class LogLevel(StrEnum):
+    ERROR = "ERROR"
+    WARNING = "WARNING"
+    INFO = "INFO"
+    DEBUG = "DEBUG"
+
+    def to_logging_level(self) -> int:
+        return logging.getLevelNamesMapping()[self]
+
+
 class Settings(BaseSettings):
+    environment: Annotated[Environment, BeforeValidator(str.upper)] = (
+        Environment.PRODUCTION
+    )
+    log_level: Annotated[LogLevel, BeforeValidator(str.upper)] = LogLevel.INFO
+
     secret: str
     database_url: DatabaseDsn
+    redis_url: RedisDsn
 
     user_session_cookie_name: str = "gitspatch_user_session"
     user_session_cookie_max_age: timedelta = timedelta(days=7)

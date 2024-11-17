@@ -9,6 +9,8 @@ from ._base import Repository
 
 
 class UserSessionRepository(Repository[UserSession]):
+    model = UserSession
+
     async def get_by_token(
         self, token: str, secret: str, *, fresh: bool = True
     ) -> UserSession | None:
