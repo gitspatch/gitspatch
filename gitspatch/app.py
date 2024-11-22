@@ -1,9 +1,10 @@
 from collections.abc import Sequence
+from pathlib import Path
 
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
-from starlette.responses import PlainTextResponse
 from starlette.routing import Mount, Route
+from starlette.staticfiles import StaticFiles
 
 from gitspatch.services import UserSessionMiddleware
 
@@ -12,13 +13,12 @@ from .core.redis import RedisMiddleware
 from .core.request import Request
 from .core.settings import Settings, SettingsMiddleware
 from .core.task import TaskMiddleware
+from .core.templating import TemplateResponse, templates
 from .routes import app, auth, github, webhook
 
 
-async def homepage(request: Request) -> PlainTextResponse:
-    user = request.state.user
-
-    return PlainTextResponse(f"Hello, {user.email}!" if user else "Hello, world!")
+async def homepage(request: Request) -> TemplateResponse:
+    return templates.TemplateResponse(request, "index.jinja2")
 
 
 routes = [
@@ -27,6 +27,11 @@ routes = [
     Mount("/auth", routes=auth),
     Mount("/github", routes=github),
     Mount("/wh", routes=webhook),
+    Mount(
+        "/static",
+        StaticFiles(directory=Path(__file__).parent / "static"),
+        name="static",
+    ),
 ]
 
 

@@ -1,13 +1,16 @@
 from starlette.responses import RedirectResponse
 from starlette.routing import Route
 
-from gitspatch.core.request import AuthenticatedRequest, Request
+from gitspatch.core.request import AuthenticatedRequest, Request, get_return_to
 from gitspatch.guards import user_session
 from gitspatch.services import get_user_session_service
 
 
 async def login(request: Request) -> RedirectResponse:
-    return RedirectResponse(request.url_for("github:authorize"))
+    return_to = get_return_to(request)
+    return RedirectResponse(
+        request.url_for("github:authorize").include_query_params(return_to=return_to)
+    )
 
 
 @user_session

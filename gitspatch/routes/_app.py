@@ -2,10 +2,27 @@ from starlette.responses import HTMLResponse
 from starlette.routing import Route
 
 from gitspatch.core.request import AuthenticatedRequest
+from gitspatch.core.templating import TemplateResponse, templates
 from gitspatch.forms import WebhookForm
 from gitspatch.guards import user_session
 from gitspatch.services import get_github_service, get_user_service
 from gitspatch.services._webhook import get_webhook_service
+
+
+@user_session
+async def index(request: AuthenticatedRequest) -> TemplateResponse:
+    user = request.state.user
+    return templates.TemplateResponse(
+        request, "app/index.jinja2", {"page_title": "Dashboard", "user": user}
+    )
+
+
+@user_session
+async def foo(request: AuthenticatedRequest) -> TemplateResponse:
+    user = request.state.user
+    return templates.TemplateResponse(
+        request, "app/index.jinja2", {"page_title": "FOO", "user": user}
+    )
 
 
 @user_session
@@ -37,6 +54,8 @@ async def webhooks_create(request: AuthenticatedRequest) -> HTMLResponse:
 
 
 routes = [
+    Route("/", index, name="app:index"),
+    Route("/foo", foo, name="app:foo"),
     Route(
         "/webhooks/create",
         webhooks_create,

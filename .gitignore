@@ -109,3 +109,5 @@ ENV/
 
 # SQLite
 *.db
+
+node_modules/

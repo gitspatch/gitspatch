@@ -29,3 +29,7 @@ class Request(_Request):
 
 class AuthenticatedRequest(Request):
     state: AuthenticatedState
+
+
+def get_return_to(request: Request) -> str:
+    return request.query_params.get("return_to", request.url_for("app:index").path)

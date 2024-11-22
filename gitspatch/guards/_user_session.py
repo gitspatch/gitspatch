@@ -18,7 +18,15 @@ def user_session(
         request: Request, *args: P.args, **kwargs: P.kwargs
     ) -> R | RedirectResponse:
         if request.state.user is None:
-            return RedirectResponse(request.url_for("auth:login"))
+            return_to = request.url.path
+            if request.url.query:
+                return_to += "?" + request.url.query
+            redirect_url = request.url_for("auth:login").include_query_params(
+                return_to=return_to
+            )
+            return RedirectResponse(
+                redirect_url, headers={"Gitspatch-Redirect-Reason": "auth_required"}
+            )
         return await func(cast(AuthenticatedRequest, request), *args, **kwargs)
 
     return wrapper
