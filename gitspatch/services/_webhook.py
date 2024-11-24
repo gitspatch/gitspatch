@@ -20,7 +20,7 @@ class WebhookService:
         self._settings = settings
 
     async def create(self, user: User, form: WebhookForm) -> tuple[Webhook, str]:
-        owner, repository, repository_id = form.github_repository.data
+        owner, repository, repository_id = form.repository.data
         installation_id = await self._github_service.get_repository_installation_id(
             owner, repository
         )
@@ -28,9 +28,11 @@ class WebhookService:
         token, token_hash = generate_token(secret=self._settings.secret)
         webhook = Webhook(
             user=user,
-            github_repository_id=repository_id,
-            github_workflow_id=form.github_workflow_id.data,
-            github_installation_id=installation_id,
+            repository_id=repository_id,
+            workflow_id=form.workflow_id.data,
+            installation_id=installation_id,
+            owner=owner,
+            repository_name=repository,
             token=token_hash,
         )
         await self._repository.create(webhook)

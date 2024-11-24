@@ -1,8 +1,8 @@
 """Add models
 
-Revision ID: a95a01fef28d
+Revision ID: 82c813673f12
 Revises:
-Create Date: 2024-11-11 15:27:31.036873
+Create Date: 2024-11-22 16:53:39.386389
 
 """
 
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "a95a01fef28d"
+revision: str = "82c813673f12"
 down_revision: str | None = None
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
@@ -105,9 +105,11 @@ def upgrade() -> None:
     op.create_table(
         "gitspatch_webhooks",
         sa.Column("user_id", sa.CHAR(length=14), nullable=False),
-        sa.Column("github_repository_id", sa.BigInteger(), nullable=False),
-        sa.Column("github_workflow_id", sa.String(), nullable=False),
-        sa.Column("github_installation_id", sa.BigInteger(), nullable=False),
+        sa.Column("repository_id", sa.BigInteger(), nullable=False),
+        sa.Column("workflow_id", sa.String(), nullable=False),
+        sa.Column("installation_id", sa.BigInteger(), nullable=False),
+        sa.Column("owner", sa.String(), nullable=False),
+        sa.Column("repository_name", sa.String(), nullable=False),
         sa.Column("token", sa.String(), nullable=False),
         sa.Column("id", sa.CHAR(length=14), nullable=False),
         sa.Column(

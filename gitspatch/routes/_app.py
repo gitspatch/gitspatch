@@ -1,32 +1,31 @@
-from starlette.responses import HTMLResponse
+from starlette.responses import HTMLResponse, RedirectResponse, Response
 from starlette.routing import Route
 
-from gitspatch.core.request import AuthenticatedRequest
+from gitspatch.core.request import AuthenticatedRequest, get_pagination
 from gitspatch.core.templating import TemplateResponse, templates
 from gitspatch.forms import WebhookForm
 from gitspatch.guards import user_session
-from gitspatch.services import get_github_service, get_user_service
-from gitspatch.services._webhook import get_webhook_service
+from gitspatch.repositories import WebhookRepository, get_repository
+from gitspatch.services import get_github_service, get_user_service, get_webhook_service
 
 
 @user_session
 async def index(request: AuthenticatedRequest) -> TemplateResponse:
     user = request.state.user
+    repository = get_repository(WebhookRepository, request)
+
+    skip, limit = get_pagination(request)
+    webhooks, total = await repository.list(user.id, skip=skip, limit=limit)
+
     return templates.TemplateResponse(
-        request, "app/index.jinja2", {"page_title": "Dashboard", "user": user}
+        request,
+        "app/index.jinja2",
+        {"page_title": "Webhooks", "user": user, "webhooks": webhooks, "total": total},
     )
 
 
 @user_session
-async def foo(request: AuthenticatedRequest) -> TemplateResponse:
-    user = request.state.user
-    return templates.TemplateResponse(
-        request, "app/index.jinja2", {"page_title": "FOO", "user": user}
-    )
-
-
-@user_session
-async def webhooks_create(request: AuthenticatedRequest) -> HTMLResponse:
+async def webhooks_create(request: AuthenticatedRequest) -> Response:
     user_service = get_user_service(request)
     github_token = await user_service.get_github_token(request.state.user)
 
@@ -35,31 +34,62 @@ async def webhooks_create(request: AuthenticatedRequest) -> HTMLResponse:
 
     data = await request.form()
     form = WebhookForm(data)
-    form.populate_github_repository(repositories)
+    form.populate_repository(repositories)
 
     if request.method == "POST" and form.validate():
         webhook_service = get_webhook_service(request)
         webhook, token = await webhook_service.create(request.state.user, form)
-        return HTMLResponse(f"Webhook {webhook.id} created! Token: {token}")
+        request.session["webhook_token"] = token
+        return RedirectResponse(
+            request.url_for("app:webhooks:get", id=webhook.id), status_code=303
+        )
 
-    return HTMLResponse(
-        f"""
-        <form method="post">
-            {form.github_repository}
-            {form.github_workflow_id}
-            <button type="submit">Create Webhook</button>
-        </form>
-        """
+    return templates.TemplateResponse(
+        request,
+        "app/webhooks/create.jinja2",
+        {"page_title": "Create Webhook", "user": request.state.user, "form": form},
+    )
+
+
+@user_session
+async def webhooks_get(request: AuthenticatedRequest) -> Response:
+    webhook_id = request.path_params["id"]
+    repository = get_repository(WebhookRepository, request)
+    webhook = await repository.get_by_id(webhook_id)
+
+    if webhook is None:
+        return HTMLResponse("Webhook not found", status_code=404)
+
+    token: str | None = request.session.pop("webhook_token", None)
+
+    return templates.TemplateResponse(
+        request,
+        "app/webhooks/get.jinja2",
+        {
+            "page_title": f"Webhook {webhook.repository_full_name}",
+            "user": request.state.user,
+            "webhook": webhook,
+            "token": token,
+        },
     )
 
 
 routes = [
-    Route("/", index, name="app:index"),
-    Route("/foo", foo, name="app:foo"),
+    Route(
+        "/",
+        index,
+        name="app:index",
+    ),
     Route(
         "/webhooks/create",
         webhooks_create,
         methods=["GET", "POST"],
         name="app:webhooks:create",
+    ),
+    Route(
+        "/webhooks/{id}",
+        webhooks_get,
+        methods=["GET"],
+        name="app:webhooks:get",
     ),
 ]

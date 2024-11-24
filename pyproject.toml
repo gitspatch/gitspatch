@@ -52,6 +52,7 @@ dependencies = [
     "mkdocstrings[python]",
     "pytest-asyncio",
     "pytest-mock",
+    "watchfiles",
 ]
 
 [tool.hatch.envs.default.scripts]
@@ -71,8 +72,10 @@ docs-serve = "mkdocs serve"
 docs-build = "mkdocs build"
 server = [
     "docker compose up -d",
-    "uvicorn gitspatch.main:app --reload"
+    "npm run build",
+    "uvicorn gitspatch.main:app",
 ]
+server-watch = "watchfiles --ignore-paths 'gitspatch/static/' 'hatch run server' gitspatch/"
 worker = [
     "docker compose up -d",
     "dramatiq -p 1 -t 1 --watch gitspatch gitspatch.main:worker"

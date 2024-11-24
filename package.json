@@ -4,6 +4,7 @@
     "prettier": "prettier --write gitspatch/templates/**/*.jinja2"
   },
   "dependencies": {
+    "@tailwindcss/forms": "^0.5.9",
     "prettier": "^3.3.3",
     "prettier-plugin-jinja-template": "^2.0.0",
     "prettier-plugin-tailwindcss": "^0.6.8",

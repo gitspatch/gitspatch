@@ -11,6 +11,7 @@ from gitspatch.services import UserSessionMiddleware
 from .core.database import SQLAlchemyMiddleware
 from .core.redis import RedisMiddleware
 from .core.request import Request
+from .core.session import SessionMiddleware
 from .core.settings import Settings, SettingsMiddleware
 from .core.task import TaskMiddleware
 from .core.templating import TemplateResponse, templates
@@ -45,6 +46,17 @@ class App:
     def _get_middleware(self) -> Sequence[Middleware]:
         return [
             Middleware(SettingsMiddleware, settings=self.settings),
+            Middleware(
+                SessionMiddleware,
+                secret=str(self.settings.secret),
+                cookie_name=self.settings.session_cookie_name,
+                cookie_max_age=int(
+                    self.settings.session_cookie_max_age.total_seconds()
+                ),
+                cookie_path=self.settings.session_cookie_path,
+                cookie_same_site=self.settings.session_cookie_same_site,
+                cookie_https_only=self.settings.session_cookie_secure,
+            ),
             Middleware(RedisMiddleware, redis_url=str(self.settings.redis_url)),
             Middleware(TaskMiddleware),
             Middleware(

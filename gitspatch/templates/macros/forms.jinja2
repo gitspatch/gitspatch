@@ -1,0 +1,62 @@
+{% macro form_field_label(field) %}
+<div class="flex justify-between">
+  <label class="block text-sm/6 font-medium text-gray-900" for="{{ field.id }}">
+    {{ field.label }}
+  </label>
+  {% if not field.flags.required %}
+    <span class="text-sm/6 text-gray-500" id="email-optional">Optional</span>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{% macro form_field_description(field) %}
+  {% if field.description %}
+    <p class="mt-2 text-sm text-gray-500" id="email-description">{{ field.description }}</p>
+  {% endif %}
+{% endmacro %}
+
+{% macro form_field_error_icon(field) %}
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+  <svg class="size-5 text-red-500" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" data-slot="icon">
+    <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
+  </svg>
+</div>
+{% endmacro %}
+
+{% macro form_field_errors(field) %}
+  {% if field.errors %}
+    <p class="mt-2 text-sm text-red-600" id="{{ field.id }}-error">
+      {% for error in field.errors %}
+        {{ error | e }}<br />
+      {% endfor %}
+    </p>
+  {% endif %}
+{% endmacro %}
+
+
+{% macro form_field_select(field) %}
+  {{ field(class="block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm/6" + (" text-red-900 ring-red-300 placeholder:text-red-300 focus:ring-red-500" if field.errors else " text-gray-900 ring-gray-300 placeholder:text-gray-400 focus:ring-indigo-600"), **kwargs) }}
+{% endmacro %}
+
+{% macro form_field_input(field) %}
+  {{ field(class="block w-full rounded-md border-0 py-1.5 shadow-sm ring-1 ring-inset focus:ring-2 focus:ring-inset sm:text-sm/6" + (" text-red-900 ring-red-300 placeholder:text-red-300 focus:ring-red-500" if field.errors else " text-gray-900 ring-gray-300 placeholder:text-gray-400 focus:ring-indigo-600"), **kwargs) }}
+{% endmacro %}
+
+    <input type="email" name="email" id="email" class="block w-full rounded-md border-0 py-1.5 pr-10 text-red-900 ring-1 ring-inset ring-red-300 placeholder:text-red-300 focus:ring-2 focus:ring-inset focus:ring-red-500 sm:text-sm/6" placeholder="you@example.com" value="adamwathan" aria-invalid="true" aria-describedby="email-error">
+
+
+{% macro form_field(field) %}
+  {{ form_field_label(field)}}
+  <div class="relative mt-2">
+    {% if field.type == "SelectField" %}
+      {{ form_field_select(field) }}
+    {% else %}
+      {{ form_field_input(field) }}
+    {% endif %}
+    {% if field.errors %}
+      {{ form_field_error_icon(field) }}
+    {% endif %}
+  </div>
+  {{ form_field_errors(field) }}
+  {{ form_field_description(field) }}
+{% endmacro %}

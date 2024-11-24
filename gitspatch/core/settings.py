@@ -1,7 +1,7 @@
 import logging
 from datetime import timedelta
 from enum import StrEnum
-from typing import Annotated
+from typing import Annotated, Literal
 
 from httpx_oauth.clients.github import GitHubOAuth2
 from pydantic import BeforeValidator, RedisDsn, UrlConstraints
@@ -44,6 +44,12 @@ class Settings(BaseSettings):
     secret: str
     database_url: DatabaseDsn
     redis_url: RedisDsn
+
+    session_cookie_name: str = "gitspatch_session"
+    session_cookie_max_age: timedelta = timedelta(days=1)
+    session_cookie_path: str = "/"
+    session_cookie_same_site: Literal["lax", "strict", "none"] = "strict"
+    session_cookie_secure: bool = True
 
     user_session_cookie_name: str = "gitspatch_user_session"
     user_session_cookie_max_age: timedelta = timedelta(days=7)
