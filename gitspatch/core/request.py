@@ -36,6 +36,7 @@ def get_return_to(request: Request) -> str:
 
 
 _DEFAULT_LIMIT = 20
+_MAX_LIMIT = 100
 
 
 def get_pagination(request: Request) -> tuple[int, int]:
@@ -44,7 +45,7 @@ def get_pagination(request: Request) -> tuple[int, int]:
     except ValueError:
         skip = 0
     try:
-        limit = int(request.query_params.get("limit", _DEFAULT_LIMIT))
+        limit = min(int(request.query_params.get("limit", _DEFAULT_LIMIT)), _MAX_LIMIT)
     except ValueError:
         limit = _DEFAULT_LIMIT
     return skip, limit

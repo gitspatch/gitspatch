@@ -1,6 +1,7 @@
 {% extends "app/layout.jinja2" %}
 
 {% import "macros/icons.jinja2" as icons %}
+{% import "macros/pagination.jinja2" as pagination %}
 
 {% block content %}
 {% if total == 0 %}
@@ -33,11 +34,7 @@
           <thead>
             <tr>
               <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Repository</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Workflow ID</th>
-              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Last status</th>
-              <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
-                <span class="sr-only">Edit</span>
-              </th>
+              <th scope="col" class="py-3.5 pl-3 pr-4 sm:pr-0 text-left text-sm font-semibold text-gray-900">Workflow ID</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
@@ -46,12 +43,8 @@
               <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
                 <a class="text-indigo-600 hover:text-indigo-900" href="{{ url_for('app:webhooks:get', id=webhook.id) }}">{{ webhook.repository_full_name }}</a>
               </td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+              <td class="whitespace-nowrap py-4 pl-3 pr-4 sm:pr-0 text-sm text-gray-500">
                 <a class="text-indigo-600 hover:text-indigo-900" href="{{ webhook.workflow_url }}">{{ webhook.workflow_id }}</a>
-              </td>
-              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">OK</td>
-              <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only">, {{ webhook.id }}</span></a>
               </td>
             </tr>
           {% endfor %}
@@ -60,5 +53,6 @@
       </div>
     </div>
   </div>
+  {{ pagination.pagination(skip, limit, total) }}
 {% endif %}
 {% endblock %}

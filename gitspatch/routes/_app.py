@@ -24,7 +24,14 @@ async def index(request: AuthenticatedRequest) -> TemplateResponse:
     return templates.TemplateResponse(
         request,
         "app/index.jinja2",
-        {"page_title": "Webhooks", "user": user, "webhooks": webhooks, "total": total},
+        {
+            "page_title": "Webhooks",
+            "user": user,
+            "webhooks": webhooks,
+            "skip": skip,
+            "limit": limit,
+            "total": total,
+        },
     )
 
 
@@ -94,6 +101,8 @@ async def events_list(request: AuthenticatedRequest) -> Response:
             "page_title": "Events",
             "user": request.state.user,
             "deliveries": deliveries,
+            "skip": skip,
+            "limit": limit,
             "total": total,
         },
     )

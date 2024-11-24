@@ -1,6 +1,7 @@
 {% extends "app/layout.jinja2" %}
 
 {% import "macros/icons.jinja2" as icons %}
+{% import "macros/pagination.jinja2" as pagination %}
 
 {% block content %}
 {% if total == 0 %}
@@ -56,5 +57,6 @@
       </div>
     </div>
   </div>
+  {{ pagination.pagination(skip, limit, total) }}
 {% endif %}
 {% endblock %}

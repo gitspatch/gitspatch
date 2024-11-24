@@ -821,12 +821,20 @@ select {
   margin-right: -0.5rem;
 }
 
+.-mt-px {
+  margin-top: -1px;
+}
+
 .ml-3 {
   margin-left: 0.75rem;
 }
 
 .mr-1\.5 {
   margin-right: 0.375rem;
+}
+
+.mr-3 {
+  margin-right: 0.75rem;
 }
 
 .mt-1 {
@@ -934,6 +942,10 @@ select {
   min-height: 100%;
 }
 
+.w-0 {
+  width: 0px;
+}
+
 .w-3 {
   width: 0.75rem;
 }
@@ -968,6 +980,10 @@ select {
 
 .max-w-xs {
   max-width: 20rem;
+}
+
+.flex-1 {
+  flex: 1 1 0%;
 }
 
 .shrink-0 {
@@ -1115,6 +1131,10 @@ select {
   border-top-width: 1px;
 }
 
+.border-t-2 {
+  border-top-width: 2px;
+}
+
 .border-gray-200 {
   --tw-border-opacity: 1;
   border-color: rgb(229 231 235 / var(--tw-border-opacity, 1));
@@ -1254,12 +1274,20 @@ select {
   padding-bottom: 0.75rem;
 }
 
+.pl-1 {
+  padding-left: 0.25rem;
+}
+
 .pl-3 {
   padding-left: 0.75rem;
 }
 
 .pl-4 {
   padding-left: 1rem;
+}
+
+.pr-1 {
+  padding-right: 0.25rem;
 }
 
 .pr-10 {
@@ -1667,6 +1695,11 @@ select {
     margin-left: calc(2rem * calc(1 - var(--tw-space-x-reverse)));
   }
 
+  .sm\:px-0 {
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+
   .sm\:px-6 {
     padding-left: 1.5rem;
     padding-right: 1.5rem;
@@ -1689,6 +1722,14 @@ select {
 @media (min-width: 768px) {
   .md\:col-span-2 {
     grid-column: span 2 / span 2;
+  }
+
+  .md\:-mt-px {
+    margin-top: -1px;
+  }
+
+  .md\:flex {
+    display: flex;
   }
 
   .md\:grid-cols-3 {
