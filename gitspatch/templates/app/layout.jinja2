@@ -2,6 +2,32 @@
 
 {% block title %}{{ page_title }} · Gitspatch{% endblock %}
 
+{% macro menu_link(request, route_name, label) %}
+  <!-- Current: "border-indigo-500 text-gray-900", Default: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700" -->
+  {% set current = current_route(request, route_name) %}
+  {% set classes = 'border-indigo-500 text-gray-900' if current else 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' %}
+  <a
+    href="{{ url_for(route_name) }}"
+    class="inline-flex items-center border-b-2 px-1 pt-1 text-sm font-medium {{ classes }}"
+    {% if current %}aria-current="page"{% endif %}
+  >
+    {{ label }}
+  </a>
+{% endmacro %}
+
+{% macro mobile_menu_link(request, route_name, label) %}
+  <!-- Current: "border-indigo-500 bg-indigo-50 text-indigo-700", Default: "border-transparent text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800" -->
+  {% set current = current_route(request, route_name) %}
+  {% set classes = 'border-indigo-500 bg-indigo-50 text-indigo-700' if current else 'border-transparent text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800' %}
+  <a
+    href="{{ url_for(route_name) }}"
+    class="block border-l-4 py-2 pl-3 pr-4 text-base font-medium {{ classes }}"
+    {% if current %}aria-current="page"{% endif %}
+  >
+    {{ label }}
+  </a>
+{% endmacro %}
+
 {% block body %}
   <div class="min-h-full">
     <nav class="border-b border-gray-200 bg-white">
@@ -21,28 +47,8 @@
               />
             </div>
             <div class="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
-              <!-- Current: "border-indigo-500 text-gray-900", Default: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700" -->
-              <a
-                href="{{ url_for('app:index') }}"
-                class="inline-flex items-center border-b-2 border-indigo-500 px-1 pt-1 text-sm font-medium text-gray-900"
-                aria-current="page"
-                >Webhooks</a
-              >
-              <a
-                href="#"
-                class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                >Team</a
-              >
-              <a
-                href="#"
-                class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                >Projects</a
-              >
-              <a
-                href="#"
-                class="inline-flex items-center border-b-2 border-transparent px-1 pt-1 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                >Calendar</a
-              >
+              {{ menu_link(request, 'app:index', 'Webhooks') }}
+              {{ menu_link(request, 'app:events:list', 'Events') }}
             </div>
           </div>
           <div class="hidden sm:ml-6 sm:flex sm:items-center">
@@ -189,28 +195,8 @@
       <!-- Mobile menu, show/hide based on menu state. -->
       <div class="hidden sm:hidden" id="mobile-menu">
         <div class="space-y-1 pb-3 pt-2">
-          <!-- Current: "border-indigo-500 bg-indigo-50 text-indigo-700", Default: "border-transparent text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800" -->
-          <a
-            href="#"
-            class="block border-l-4 border-indigo-500 bg-indigo-50 py-2 pl-3 pr-4 text-base font-medium text-indigo-700"
-            aria-current="page"
-            >Dashboard</a
-          >
-          <a
-            href="#"
-            class="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800"
-            >Team</a
-          >
-          <a
-            href="#"
-            class="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800"
-            >Projects</a
-          >
-          <a
-            href="#"
-            class="block border-l-4 border-transparent py-2 pl-3 pr-4 text-base font-medium text-gray-600 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800"
-            >Calendar</a
-          >
+          {{ mobile_menu_link(request, 'app:index', 'Webhooks') }}
+          {{ mobile_menu_link(request, 'app:events:list', 'Events') }}
         </div>
         <div class="border-t border-gray-200 pb-3 pt-4">
           <div class="flex items-center px-4">

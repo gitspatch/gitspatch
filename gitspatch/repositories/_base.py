@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from typing import Any, Generic, TypeVar
 
-from sqlalchemy import Select, select
+from sqlalchemy import Select, func, over, select
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql.base import ExecutableOption
 
@@ -43,6 +43,22 @@ class Repository(Generic[M]):
 
     async def delete(self, object: M) -> None:
         await self.session.delete(object)
+
+    async def paginate(
+        self, statement: Select[tuple[M]], *, limit: int, offset: int
+    ) -> tuple[list[M], int]:
+        paginated_statement: Select[tuple[M, int]] = (
+            statement.add_columns(over(func.count())).limit(limit).offset(offset)
+        )
+        results = await self.session.stream(paginated_statement)
+
+        items: list[M] = []
+        count = 0
+        async for result in results:
+            item, count = result._tuple()
+            items.append(item)
+
+        return items, count
 
 
 R = TypeVar("R", bound=Repository[Any])

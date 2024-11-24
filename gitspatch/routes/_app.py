@@ -5,7 +5,11 @@ from gitspatch.core.request import AuthenticatedRequest, get_pagination
 from gitspatch.core.templating import TemplateResponse, templates
 from gitspatch.forms import WebhookForm
 from gitspatch.guards import user_session
-from gitspatch.repositories import WebhookRepository, get_repository
+from gitspatch.repositories import (
+    WebhookEventDeliveryRepository,
+    WebhookRepository,
+    get_repository,
+)
 from gitspatch.services import get_github_service, get_user_service, get_webhook_service
 
 
@@ -74,6 +78,27 @@ async def webhooks_get(request: AuthenticatedRequest) -> Response:
     )
 
 
+@user_session
+async def events_list(request: AuthenticatedRequest) -> Response:
+    user = request.state.user
+    print(request.scope)
+    repository = get_repository(WebhookEventDeliveryRepository, request)
+
+    skip, limit = get_pagination(request)
+    deliveries, total = await repository.list(user.id, skip=skip, limit=limit)
+
+    return templates.TemplateResponse(
+        request,
+        "app/events/list.jinja2",
+        {
+            "page_title": "Events",
+            "user": request.state.user,
+            "deliveries": deliveries,
+            "total": total,
+        },
+    )
+
+
 routes = [
     Route(
         "/",
@@ -91,5 +116,10 @@ routes = [
         webhooks_get,
         methods=["GET"],
         name="app:webhooks:get",
+    ),
+    Route(
+        "/events",
+        events_list,
+        name="app:events:list",
     ),
 ]

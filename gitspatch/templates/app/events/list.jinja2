@@ -1,0 +1,60 @@
+{% extends "app/layout.jinja2" %}
+
+{% import "macros/icons.jinja2" as icons %}
+
+{% block content %}
+{% if total == 0 %}
+  <div class="text-center">
+    {{ icons.bolt('mx-auto size-12 text-gray-400') }}
+    <h3 class="mt-2 text-sm font-semibold text-gray-900">No event</h3>
+    <p class="mt-1 text-sm text-gray-500">Trigger one of your webhooks to see events appear here.</p>
+  </div>
+{% else %}
+  <div class="sm:flex sm:items-center">
+    <div class="sm:flex-auto">
+      <p class="mt-2 text-sm text-gray-700">List of all events delivered by your webhooks to your workflows.</p>
+    </div>
+  </div>
+  <div class="mt-8 flow-root">
+    <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+      <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+        <table class="min-w-full divide-y divide-gray-300">
+          <thead>
+            <tr>
+              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0"></th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Timestamp</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Repository</th>
+              <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">Workflow ID</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200">
+          {% for delivery in deliveries %}
+            {% set event = delivery.webhook_event %}
+            {% set webhook = event.webhook %}
+            <tr>
+              <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0">
+                {% set ring_status_color = 'bg-green-400' if delivery.success else 'bg-red-400' %}
+                {% set dot_status_color = 'bg-green-500' if delivery.success else 'bg-red-500' %}
+                <div class="relative flex h-3 w-3">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 {{ ring_status_color }}"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 {{ dot_status_color }}"></span>
+                </div>
+              </td>
+              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                <time datetime="{{ delivery.created_at }}" title="{{ delivery.created_at }}">{{ delivery.created_at | datetime }}</time>
+              </td>
+              <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                <a class="text-indigo-600 hover:text-indigo-900" href="{{ url_for('app:webhooks:get', id=webhook.id) }}">{{ webhook.repository_full_name }}</a>
+              </td>
+              <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+                <a class="text-indigo-600 hover:text-indigo-900" href="{{ webhook.workflow_url }}">{{ webhook.workflow_id }}</a>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
