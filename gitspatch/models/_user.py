@@ -27,3 +27,7 @@ class User(IDModel, TimestampMixin, Base):
     @github_token.setter
     def github_token(self, token: OAuth2Token) -> None:
         self._github_token = token
+
+    @property
+    def profile_picture_url(self) -> str:
+        return f"https://avatars.githubusercontent.com/u/{self.github_account_id}"
