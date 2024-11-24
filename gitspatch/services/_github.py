@@ -118,16 +118,23 @@ class GitHubService:
         workflow_id: str,
         access_token: str,
         inputs: dict[str, Any],
-    ) -> None:
-        response = await self._client.post(
-            f"/repos/{owner}/{repository}/actions/workflows/{workflow_id}/dispatches",
-            headers={"Authorization": f"Bearer {access_token}"},
-            json={
-                "ref": "main",
-                "inputs": inputs,
-            },
-        )
-        response.raise_for_status()
+    ) -> tuple[bool, int | None, str | None]:
+        try:
+            response = await self._client.post(
+                f"/repos/{owner}/{repository}/actions/workflows/{workflow_id}/dispatches",
+                headers={"Authorization": f"Bearer {access_token}"},
+                json={
+                    "ref": "main",
+                    "inputs": inputs,
+                },
+            )
+            response.raise_for_status()
+        except httpx.HTTPStatusError as e:
+            return False, e.response.status_code, e.response.text
+        except httpx.HTTPError:
+            return False, None, None
+        else:
+            return True, response.status_code, response.text
 
     def _get_app_jwt(self) -> str:
         claims = {

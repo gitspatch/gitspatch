@@ -8,6 +8,10 @@ from ._user_session import (
 )
 from ._webhook import WebhookService, get_webhook_service
 from ._webhook_event import WebhookEventService, get_webhook_event_service
+from ._webhook_event_delivery import (
+    WebhookEventDeliveryService,
+    get_webhook_event_delivery_service,
+)
 
 __all__ = [
     "DispatcherService",
@@ -16,11 +20,13 @@ __all__ = [
     "UserService",
     "UserSessionMiddleware",
     "UserSessionService",
+    "WebhookEventDeliveryService",
     "WebhookEventService",
     "WebhookService",
     "get_github_service",
     "get_user_service",
     "get_user_session_service",
+    "get_webhook_event_delivery_service",
     "get_webhook_event_service",
     "get_webhook_service",
 ]
