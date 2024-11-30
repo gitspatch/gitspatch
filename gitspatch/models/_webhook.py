@@ -38,3 +38,6 @@ class Webhook(IDModel, TimestampMixin, Base):
     @property
     def workflow_url(self) -> str:
         return f"{self.repository_url}/actions/workflows/{self.workflow_id}"
+
+    def get_workflow_run_url(self, workflow_run_id: str) -> str:
+        return f"{self.repository_url}/actions/runs/{workflow_run_id}"
