@@ -1,4 +1,5 @@
 import functools
+import urllib.parse
 from collections.abc import Callable
 from datetime import datetime
 from pathlib import Path
@@ -36,10 +37,18 @@ def current_route(request: Request, route_name: str) -> bool:
     return _current_route(cast(list[Route], app.routes), endpoint, route_name)
 
 
+def generate_paginated_url(request: Request, page: int, limit: int, total: int) -> str:
+    skip = (page - 1) * limit
+    query_params = dict(request.query_params.items())
+    query_params["skip"] = str(skip)
+    return f"{request.url.path}?{urllib.parse.urlencode(query_params)}"
+
+
 TemplateResponse = HTMLResponse
 templates = Jinja2Templates(directory=Path(__file__).parent.parent / "templates")
 
 templates.env.filters["datetime"] = format_datetime
 templates.env.globals["current_route"] = current_route
+templates.env.globals["generate_paginated_url"] = generate_paginated_url
 
 __all__ = ["templates", "TemplateResponse"]

@@ -88,11 +88,14 @@ async def webhooks_get(request: AuthenticatedRequest) -> Response:
 @user_session
 async def events_list(request: AuthenticatedRequest) -> Response:
     user = request.state.user
-    print(request.scope)
     repository = get_repository(WebhookEventDeliveryRepository, request)
 
     skip, limit = get_pagination(request)
-    deliveries, total = await repository.list(user.id, skip=skip, limit=limit)
+    webhook_id = request.query_params.get("webhook_id")
+
+    deliveries, total = await repository.list(
+        user.id, webhook_id=webhook_id, skip=skip, limit=limit
+    )
 
     return templates.TemplateResponse(
         request,

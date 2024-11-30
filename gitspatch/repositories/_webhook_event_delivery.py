@@ -10,7 +10,7 @@ class WebhookEventDeliveryRepository(Repository[WebhookEventDelivery]):
     model = WebhookEventDelivery
 
     async def list(
-        self, user_id: str, *, skip: int, limit: int
+        self, user_id: str, *, skip: int, limit: int, webhook_id: str | None = None
     ) -> tuple[list[WebhookEventDelivery], int]:
         statement = (
             select(WebhookEventDelivery)
@@ -26,4 +26,8 @@ class WebhookEventDeliveryRepository(Repository[WebhookEventDelivery]):
                 )
             )
         )
+
+        if webhook_id is not None:
+            statement = statement.where(Webhook.id == webhook_id)
+
         return await self.paginate(statement, limit=limit, offset=skip)
