@@ -17,3 +17,9 @@ class WebhookEventRepository(Repository[WebhookEvent]):
             .where(WebhookEvent.id == event_id, Webhook.repository_id == repository_id)
         )
         return await self.get_one_or_none(statement)
+
+    async def get_by_workflow_run_id(self, workflow_run_id: int) -> WebhookEvent | None:
+        statement = select(WebhookEvent).where(
+            WebhookEvent.workflow_run_id == workflow_run_id
+        )
+        return await self.get_one_or_none(statement)

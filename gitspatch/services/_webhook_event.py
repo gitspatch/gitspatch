@@ -1,3 +1,5 @@
+from typing import Any
+
 from gitspatch.core.request import Request
 from gitspatch.core.settings import Settings
 from gitspatch.models import Webhook, WebhookEvent
@@ -22,6 +24,15 @@ class WebhookEventService:
         )
         await self._repository.create(webhook_event)
         return webhook_event
+
+    async def handle_workflow_run_event(self, payload: dict[str, Any]) -> None:
+        workflow_run = payload["workflow_run"]
+        workflow_run_id = workflow_run["id"]
+
+        webhook_event = await self._repository.get_by_workflow_run_id(workflow_run_id)
+        if webhook_event is not None:
+            webhook_event.workflow_run_status = workflow_run["status"]
+            await self._repository.update(webhook_event, autoflush=False)
 
 
 def get_webhook_event_service(request: Request) -> WebhookEventService:

@@ -1,10 +1,14 @@
-from starlette.responses import RedirectResponse
+import hashlib
+import hmac
+import json
+
+from starlette.responses import RedirectResponse, Response
 from starlette.routing import Route
 
 from gitspatch.core.request import Request, get_return_to
 from gitspatch.models import User
 from gitspatch.repositories import UserRepository, get_repository
-from gitspatch.services import get_user_session_service
+from gitspatch.services import get_user_session_service, get_webhook_event_service
 
 
 async def authorize(request: Request) -> RedirectResponse:
@@ -39,7 +43,33 @@ async def callback(request: Request) -> RedirectResponse:
     return response
 
 
+async def webhook(request: Request) -> Response:
+    signature_header = request.headers.get("x-hub-signature-256")
+    if signature_header is None:
+        return Response(status_code=403)
+
+    raw_body = await request.body()
+    secret = request.state.settings.github_webhook_secret
+    hash_object = hmac.new(
+        secret.encode("utf-8"), msg=raw_body, digestmod=hashlib.sha256
+    )
+    expected_signature = "sha256=" + hash_object.hexdigest()
+
+    if not hmac.compare_digest(expected_signature, signature_header):
+        return Response(status_code=403)
+
+    event = request.headers.get("x-github-event")
+    payload = json.loads(raw_body)
+
+    if event == "workflow_run":
+        webhook_event_service = get_webhook_event_service(request)
+        await webhook_event_service.handle_workflow_run_event(payload)
+
+    return Response(status_code=202)
+
+
 routes = [
     Route("/authorize", authorize, methods=["GET"], name="github:authorize"),
     Route("/callback", callback, methods=["GET"], name="github:callback"),
+    Route("/webhook", webhook, methods=["POST"], name="github:webhook"),
 ]

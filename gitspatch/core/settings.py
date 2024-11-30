@@ -59,6 +59,7 @@ class Settings(BaseSettings):
     github_client_secret: str
     github_private_key: str
     github_oidc_id_token_audience: str = "gitspatch"
+    github_webhook_secret: str
 
     model_config = SettingsConfigDict(
         env_prefix="gitspatch_", env_file=".env", extra="ignore"
