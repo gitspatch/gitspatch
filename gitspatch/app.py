@@ -15,7 +15,7 @@ from .core.session import SessionMiddleware
 from .core.settings import Settings, SettingsMiddleware
 from .core.task import TaskMiddleware
 from .core.templating import TemplateResponse, templates
-from .routes import app, auth, github, webhook
+from .routes import action, app, auth, github, webhook
 
 
 async def homepage(request: Request) -> TemplateResponse:
@@ -24,6 +24,7 @@ async def homepage(request: Request) -> TemplateResponse:
 
 routes = [
     Route("/", homepage),
+    Mount("/action", routes=action),
     Mount("/app", routes=app),
     Mount("/auth", routes=auth),
     Mount("/github", routes=github),

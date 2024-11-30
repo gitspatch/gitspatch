@@ -1,5 +1,11 @@
 from ._dispatcher import DispatcherService
 from ._github import GitHubService, InstalledRepository, get_github_service
+from ._github_oidc import (
+    AlreadyUsedIDTokenError,
+    GitHubOIDCService,
+    InvalidIDTokenError,
+    get_github_oidc_service,
+)
 from ._user import UserService, get_user_service
 from ._user_session import (
     UserSessionMiddleware,
@@ -15,6 +21,7 @@ from ._webhook_event_delivery import (
 
 __all__ = [
     "DispatcherService",
+    "GitHubOIDCService",
     "GitHubService",
     "InstalledRepository",
     "UserService",
@@ -23,6 +30,9 @@ __all__ = [
     "WebhookEventDeliveryService",
     "WebhookEventService",
     "WebhookService",
+    "InvalidIDTokenError",
+    "AlreadyUsedIDTokenError",
+    "get_github_oidc_service",
     "get_github_service",
     "get_user_service",
     "get_user_session_service",
