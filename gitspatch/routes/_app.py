@@ -1,4 +1,4 @@
-from starlette.responses import HTMLResponse, RedirectResponse, Response
+from starlette.responses import HTMLResponse, Response
 from starlette.routing import Route
 
 from gitspatch.core.request import AuthenticatedRequest, get_pagination
@@ -52,8 +52,8 @@ async def webhooks_create(request: AuthenticatedRequest) -> Response:
         webhook_service = get_webhook_service(request)
         webhook, token = await webhook_service.create(request.state.user, form)
         request.session["webhook_token"] = token
-        return RedirectResponse(
-            request.url_for("app:webhooks:get", id=webhook.id), status_code=303
+        return HTMXRedirectResponse(
+            request, request.url_for("app:webhooks:get", id=webhook.id), status_code=303
         )
 
     return templates.TemplateResponse(
@@ -80,8 +80,8 @@ async def webhooks_get(request: AuthenticatedRequest) -> Response:
     if request.method == "POST" and form.validate():
         webhook_service = get_webhook_service(request)
         webhook = await webhook_service.update(webhook, form)
-        return RedirectResponse(
-            request.url_for("app:webhooks:get", id=webhook.id), status_code=303
+        return HTMXRedirectResponse(
+            request, request.url_for("app:webhooks:get", id=webhook.id), status_code=303
         )
 
     return templates.TemplateResponse(
@@ -108,7 +108,9 @@ async def webhooks_delete(request: AuthenticatedRequest) -> Response:
 
     if request.method == "DELETE":
         await repository.delete(webhook)
-        return HTMXRedirectResponse(request.url_for("app:index"))
+        return HTMXRedirectResponse(
+            request, request.url_for("app:index"), status_code=303
+        )
 
     return templates.TemplateResponse(
         request,

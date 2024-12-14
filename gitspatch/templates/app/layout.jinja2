@@ -36,14 +36,20 @@
           <div class="flex">
             <div class="flex shrink-0 items-center">
               <img
-                class="block h-8 w-auto lg:hidden"
-                src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-                alt="Your Company"
-              />
-              <img
-                class="hidden h-8 w-auto lg:block"
-                src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-                alt="Your Company"
+                class="block h-8 w-auto"
+                src="{{ url_for('static', path='logo.svg')}}"
+                alt="Gitspatch"
+                _="
+                  on htmx:beforeSend from document
+                    add .animate-spin
+                  end
+                  on htmx:historyRestore from document
+                    remove .animate-spin
+                  end
+                  on htmx:afterOnLoad from document
+                    remove .animate-spin
+                  end
+                "
               />
             </div>
             <div class="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">

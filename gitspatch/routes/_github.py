@@ -6,19 +6,20 @@ from starlette.responses import RedirectResponse, Response
 from starlette.routing import Route
 
 from gitspatch.core.request import Request, get_return_to
+from gitspatch.core.responses import HTMXRedirectResponse
 from gitspatch.models import User
 from gitspatch.repositories import UserRepository, get_repository
 from gitspatch.services import get_user_session_service, get_webhook_event_service
 
 
-async def authorize(request: Request) -> RedirectResponse:
+async def authorize(request: Request) -> HTMXRedirectResponse:
     return_to = get_return_to(request)
     oauth_client = request.state.settings.get_github_oauth_client()
     redirect_uri = request.url_for("github:callback").include_query_params(
         return_to=return_to
     )
     authorization_url = await oauth_client.get_authorization_url(str(redirect_uri))
-    return RedirectResponse(authorization_url)
+    return HTMXRedirectResponse(request, authorization_url)
 
 
 async def callback(request: Request) -> RedirectResponse:

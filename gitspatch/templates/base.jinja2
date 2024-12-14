@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
     <script src="https://unpkg.com/hyperscript.org@0.9.13"></script>
     <script src="https://unpkg.com/htmx.org@2.0.3"></script>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', path='logo.svg') }}">
     <title>{% block title %}{% endblock %}</title>
 </head>
-<body class="h-full">
+<body class="h-full" hx-boost="true">
     {% block hyperscripts %}{% endblock %}
     {% block body %}{% endblock %}
 </body>
