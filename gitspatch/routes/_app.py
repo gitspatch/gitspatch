@@ -2,8 +2,9 @@ from starlette.responses import HTMLResponse, RedirectResponse, Response
 from starlette.routing import Route
 
 from gitspatch.core.request import AuthenticatedRequest, get_pagination
+from gitspatch.core.responses import HTMXRedirectResponse
 from gitspatch.core.templating import TemplateResponse, templates
-from gitspatch.forms import WebhookForm
+from gitspatch.forms import CreateWebhookForm, EditWebhookForm
 from gitspatch.guards import user_session
 from gitspatch.repositories import (
     WebhookEventDeliveryRepository,
@@ -44,7 +45,7 @@ async def webhooks_create(request: AuthenticatedRequest) -> Response:
     repositories = await github_service.get_user_repositories(github_token)
 
     data = await request.form()
-    form = WebhookForm(data)
+    form = CreateWebhookForm(data)
     form.populate_repository(repositories)
 
     if request.method == "POST" and form.validate():
@@ -73,6 +74,16 @@ async def webhooks_get(request: AuthenticatedRequest) -> Response:
 
     token: str | None = request.session.pop("webhook_token", None)
 
+    data = await request.form()
+    form = EditWebhookForm(data, webhook)
+
+    if request.method == "POST" and form.validate():
+        webhook_service = get_webhook_service(request)
+        webhook = await webhook_service.update(webhook, form)
+        return RedirectResponse(
+            request.url_for("app:webhooks:get", id=webhook.id), status_code=303
+        )
+
     return templates.TemplateResponse(
         request,
         "app/webhooks/get.jinja2",
@@ -81,6 +92,29 @@ async def webhooks_get(request: AuthenticatedRequest) -> Response:
             "user": request.state.user,
             "webhook": webhook,
             "token": token,
+            "form": form,
+        },
+    )
+
+
+@user_session
+async def webhooks_delete(request: AuthenticatedRequest) -> Response:
+    webhook_id = request.path_params["id"]
+    repository = get_repository(WebhookRepository, request)
+    webhook = await repository.get_by_id(webhook_id)
+
+    if webhook is None:
+        return HTMLResponse("Webhook not found", status_code=404)
+
+    if request.method == "DELETE":
+        await repository.delete(webhook)
+        return HTMXRedirectResponse(request.url_for("app:index"))
+
+    return templates.TemplateResponse(
+        request,
+        "app/webhooks/delete.jinja2",
+        {
+            "webhook": webhook,
         },
     )
 
@@ -126,8 +160,14 @@ routes = [
     Route(
         "/webhooks/{id}",
         webhooks_get,
-        methods=["GET"],
+        methods=["GET", "POST"],
         name="app:webhooks:get",
+    ),
+    Route(
+        "/webhooks/{id}/delete",
+        webhooks_delete,
+        methods=["GET", "DELETE"],
+        name="app:webhooks:delete",
     ),
     Route(
         "/events",

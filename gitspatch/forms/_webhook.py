@@ -8,7 +8,7 @@ def _coerce_repository(value: str) -> tuple[str, str, int]:
     return owner, name, int(id)
 
 
-class WebhookForm(Form):
+class CreateWebhookForm(Form):
     repository = SelectField(
         "Repository", validators=[validators.DataRequired()], coerce=_coerce_repository
     )
@@ -22,3 +22,11 @@ class WebhookForm(Form):
         self.repository.choices = [
             (repository.form_value, repository.full_name) for repository in repositories
         ]
+
+
+class EditWebhookForm(Form):
+    workflow_id = StringField(
+        "Workflow ID",
+        validators=[validators.DataRequired()],
+        description='You can pass the workflow file name, like "CI.yml".',
+    )

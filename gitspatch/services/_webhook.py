@@ -1,7 +1,7 @@
 from gitspatch.core.crypto import generate_token
 from gitspatch.core.request import Request
 from gitspatch.core.settings import Settings
-from gitspatch.forms import WebhookForm
+from gitspatch.forms import CreateWebhookForm, EditWebhookForm
 from gitspatch.models import User, Webhook
 from gitspatch.repositories import WebhookRepository
 
@@ -19,7 +19,7 @@ class WebhookService:
         self._github_service = github_service
         self._settings = settings
 
-    async def create(self, user: User, form: WebhookForm) -> tuple[Webhook, str]:
+    async def create(self, user: User, form: CreateWebhookForm) -> tuple[Webhook, str]:
         owner, repository, repository_id = form.repository.data
         installation_id = await self._github_service.get_repository_installation_id(
             owner, repository
@@ -38,6 +38,11 @@ class WebhookService:
         await self._repository.create(webhook)
 
         return webhook, token
+
+    async def update(self, webhook: Webhook, form: EditWebhookForm) -> Webhook:
+        form.populate_obj(webhook)
+        await self._repository.update(webhook, autoflush=False)
+        return webhook
 
     async def get_by_token(self, token: str) -> Webhook | None:
         webhook = await self._repository.get_by_token(

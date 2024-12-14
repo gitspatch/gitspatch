@@ -1,0 +1,9 @@
+{% import "macros/modals.jinja2" as modals %}
+
+{% set button_attrs | wordwrap %}
+hx-delete="{{ request.url_for("app:webhooks:delete", id=webhook.id) }}"
+{% endset %}
+
+{% call modals.confirm(title="Delete " + webhook.repository_full_name + " webhook", button_label="Delete", button_attrs=button_attrs) %}
+  <p class="text-sm text-gray-500">Are you sure you want to delete this webhook? Triggering workflows will stop working immediately and the events history will be permanently deleted.</p>
+{% endcall %}

@@ -1,3 +1,3 @@
-from ._webhook import WebhookForm
+from ._webhook import CreateWebhookForm, EditWebhookForm
 
-__all__ = ["WebhookForm"]
+__all__ = ["CreateWebhookForm", "EditWebhookForm"]

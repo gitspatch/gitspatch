@@ -50,7 +50,7 @@
                 <a class="text-indigo-600 hover:text-indigo-900" href="{{ webhook.workflow_url }}">{{ webhook.workflow_id }}</a>
               </td>
               <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only">, {{ webhook.id }}</span></a>
+                <a href="{{ url_for('app:webhooks:get', id=webhook.id) }}" class="text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only">, {{ webhook.id }}</span></a>
               </td>
             </tr>
           {% endfor %}
