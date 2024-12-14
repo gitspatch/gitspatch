@@ -65,7 +65,7 @@ lint = [
 ]
 lint-check = [
   "ruff format --check .",
-  "ruff .",
+  "ruff check .",
   "mypy gitspatch/",
 ]
 docs-serve = "mkdocs serve"
