@@ -70,4 +70,4 @@ It'll automatically watch for changes in your code.
 
 ## License
 
-This project is licensed under the terms of the MIT license.
+This project is licensed under the terms of the [Elastic License 2.0 (ELv2)](./LICENSE.md).
