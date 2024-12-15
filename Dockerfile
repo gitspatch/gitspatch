@@ -34,6 +34,9 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 
 COPY --from=build-python /build/dist/gitspatch-*.whl .
+COPY alembic.ini alembic.ini
+COPY gitspatch/migrations gitspatch/migrations
+COPY run.sh run.sh
 
 RUN apt-get update && apt-get install -y curl && pip install /app/gitspatch*.whl
 
@@ -41,4 +44,4 @@ ENV PORT=8000
 ENV UVICORN_PORT=${PORT}
 EXPOSE ${PORT}
 
-CMD ["uvicorn", "gitspatch.main:app", "--host", "0.0.0.0"]
+CMD ["/bin/bash", "/app/run.sh"]
