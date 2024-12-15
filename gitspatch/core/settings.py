@@ -61,6 +61,8 @@ class Settings(BaseSettings):
     github_oidc_id_token_audience: str = "gitspatch"
     github_webhook_secret: str
 
+    sentry_dsn: str | None = None
+
     model_config = SettingsConfigDict(
         env_prefix="gitspatch_", env_file=".env", extra="ignore"
     )

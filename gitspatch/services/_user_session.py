@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 from typing import TypeVar
 
+from sentry_sdk import set_user
 from starlette.responses import Response
 from starlette.types import ASGIApp, Receive, Scope, Send
 
@@ -84,9 +85,9 @@ class UserSessionMiddleware:
             user_session = await user_session_service.get_request_user_session(request)
             scope["state"]["user_session"] = user_session
             scope["state"]["user"] = user_session.user if user_session else None
-
             if user_session:
                 scope["state"]["user"] = user_session.user
+                set_user({"id": user_session.user.id, "email": user_session.user.email})
                 self._logger.debug("User authenticated", user_id=user_session.user.id)
             else:
                 scope["state"]["user"] = None

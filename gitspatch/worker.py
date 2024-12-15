@@ -5,10 +5,12 @@ import threading
 from collections.abc import Callable, Sequence
 
 import dramatiq
+import sentry_sdk
 from dramatiq.asyncio import get_event_loop_thread
 from dramatiq.brokers.redis import RedisBroker
 from dramatiq.brokers.stub import StubBroker
 from dramatiq.middleware.asyncio import AsyncIO
+from sentry_sdk.integrations.dramatiq import DramatiqIntegration
 from sqlalchemy import URL
 
 from .core.database import (
@@ -107,6 +109,7 @@ class SQLAlchemyMiddleware(dramatiq.Middleware):
 class Worker:
     def __init__(self, settings: Settings) -> None:
         self.settings = settings
+        self._setup_sentry()
         self.broker = RedisBroker(url=str(settings.redis_url))
         for middleware in self._get_middleware():
             self.broker.add_middleware(middleware)
@@ -120,3 +123,15 @@ class Worker:
             SettingsMiddleware(settings=self.settings),
             SQLAlchemyMiddleware(database_url=str(self.settings.database_url)),
         ]
+
+    def _setup_sentry(self) -> None:
+        if self.settings.sentry_dsn is None:
+            return
+
+        sentry_sdk.init(
+            dsn=self.settings.sentry_dsn,
+            environment=self.settings.environment,
+            integrations=[
+                DramatiqIntegration(),
+            ],
+        )

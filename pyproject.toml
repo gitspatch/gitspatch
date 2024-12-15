@@ -112,6 +112,7 @@ dependencies = [
     "pydantic_settings==2.6.1",
     "python-multipart==0.0.17",
     "redis[hiredis]==5.2.0",
+    "sentry-sdk[starlette]==2.19.2",
     "sqlalchemy[asyncio]==2.0.36",
     "starlette==0.41.2",
     "structlog==24.4.0",
