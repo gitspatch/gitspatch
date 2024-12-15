@@ -35,7 +35,7 @@ WORKDIR /app
 
 COPY --from=build-python /build/dist/gitspatch-*.whl .
 
-RUN pip install /app/gitspatch*.whl
+RUN apt-get update && apt-get install -y curl && pip install /app/gitspatch*.whl
 
 ENV PORT=8000
 ENV UVICORN_PORT=${PORT}
