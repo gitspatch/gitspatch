@@ -14,7 +14,7 @@ DatabaseDsn = Annotated[
     UrlConstraints(
         host_required=True,
         allowed_schemes=[
-            "sqlite+aiosqlite",
+            "postgresql+asyncpg",
         ],
     ),
 ]
