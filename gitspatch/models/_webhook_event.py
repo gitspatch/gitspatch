@@ -1,7 +1,7 @@
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, String, Text
+from sqlalchemy import BigInteger, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from gitspatch.models._timestamp import TimestampMixin
@@ -41,7 +41,7 @@ class WebhookEvent(IDModel, TimestampMixin, Base):
     )
     webhook: Mapped[Webhook] = relationship("Webhook", lazy="raise")
 
-    workflow_run_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    workflow_run_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
     workflow_run_status: Mapped[WorkflowRunStatus | None] = mapped_column(
         String, nullable=True
     )
