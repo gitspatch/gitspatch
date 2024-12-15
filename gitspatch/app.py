@@ -1,8 +1,12 @@
 from collections.abc import Sequence
 from pathlib import Path
 
+from redis import RedisError
+from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
+from starlette.responses import JSONResponse
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 
@@ -22,8 +26,32 @@ async def homepage(request: Request) -> TemplateResponse:
     return templates.TemplateResponse(request, "index.jinja2")
 
 
+async def healthz(request: Request) -> JSONResponse:
+    database_available = False
+    try:
+        await request.state.session.execute(select(1))
+        database_available = True
+    except SQLAlchemyError:
+        pass
+
+    redis_available = False
+    try:
+        await request.state.redis.ping()
+        redis_available = True
+    except RedisError:
+        pass
+
+    status_code = 200 if database_available and redis_available else 503
+
+    return JSONResponse(
+        {"database": database_available, "redis": redis_available},
+        status_code=status_code,
+    )
+
+
 routes = [
     Route("/", homepage),
+    Route("/healthz", healthz),
     Mount("/action", routes=action),
     Mount("/app", routes=app),
     Mount("/auth", routes=auth),
