@@ -1,4 +1,5 @@
-from sqlalchemy import BigInteger, ForeignKey, String
+from sqlalchemy import ForeignKey, String
+from sqlalchemy.dialects.postgresql import BIGINT
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from gitspatch.models._timestamp import TimestampMixin
@@ -18,9 +19,9 @@ class Webhook(IDModel, TimestampMixin, Base):
     )
     user: Mapped[User] = relationship("User", lazy="raise")
 
-    repository_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    repository_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
     workflow_id: Mapped[str] = mapped_column(String, nullable=False)
-    installation_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    installation_id: Mapped[int] = mapped_column(BIGINT, nullable=False)
 
     owner: Mapped[str] = mapped_column(String, nullable=False)
     repository_name: Mapped[str] = mapped_column(String, nullable=False)
