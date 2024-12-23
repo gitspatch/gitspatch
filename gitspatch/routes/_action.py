@@ -43,7 +43,7 @@ async def workflow_run(request: Request) -> Response:
     if webhook_event is None:
         return Response(status_code=404)
 
-    webhook_event.workflow_run_id = run_id
+    webhook_event.workflow_run_id = int(run_id)
     await workflow_event_repository.update(webhook_event)
 
     return Response(status_code=200)
