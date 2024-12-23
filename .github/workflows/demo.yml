@@ -16,6 +16,7 @@ permissions:
 
 jobs:
   demo:
+    name: Hello ${{ fromJSON(github.event.inputs.webhook_event_payload).name }}
     runs-on: ubuntu-latest
 
     steps:
