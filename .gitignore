@@ -111,3 +111,4 @@ ENV/
 *.db
 
 node_modules/
+gitspatch/static/output.css
