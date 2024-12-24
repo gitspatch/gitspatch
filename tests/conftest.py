@@ -98,7 +98,9 @@ class TestApp(App):
 
 @pytest.fixture
 def settings() -> Settings:
-    return Settings(database_url="sqlite+aiosqlite:///./test.db")  # type: ignore
+    return Settings(
+        database_url="postgresql+asyncpg://gitspatch:gitspatch@localhost:5432/gitspatch-test"  # type: ignore
+    )
 
 
 @pytest_asyncio.fixture
@@ -134,7 +136,10 @@ async def fixtures_data(session: AsyncSession) -> FixturesData:
 
 @pytest_asyncio.fixture
 async def client(
-    request: pytest.FixtureRequest, session: AsyncSession, fixtures_data: FixturesData
+    request: pytest.FixtureRequest,
+    session: AsyncSession,
+    settings: Settings,
+    fixtures_data: FixturesData,
 ) -> AsyncIterator[httpx.AsyncClient]:
     user: User | None = None
     marker = request.node.get_closest_marker("auth")
@@ -142,7 +147,6 @@ async def client(
         user_key = marker.args[0] if marker.args else "user1"
         user = fixtures_data["users"][user_key]
 
-    settings = Settings(database_url="sqlite+aiosqlite:///./test.db")  # type: ignore
     app = TestApp(settings, session, user).app
     async with LifespanManager(app) as manager:
         async with httpx.AsyncClient(
