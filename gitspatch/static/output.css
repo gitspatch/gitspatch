@@ -1465,6 +1465,10 @@ select {
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
 }
 
+.bg-opacity-75 {
+  --tw-bg-opacity: 0.75;
+}
+
 .stroke-gray-200 {
   stroke: #e5e7eb;
 }

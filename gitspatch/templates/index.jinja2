@@ -245,19 +245,31 @@
         <p class="mx-auto mt-6 max-w-xl text-pretty text-lg/8 text-gray-300">
           Copy the cURL command below and run it in your favorite terminal.
         </p>
-        <!-- prettier-ignore -->
+        {# prettier-ignore-start #}
         {% set curl_command %}
 curl -X POST \
 -H "Content-Type: application/json" \
 -d '{"name": "Anonymous"}' \
 https://www.gitspatch.dev/wh/669VPYnfzWxPbPXOEriaQdCFEfyD8SXXxQKrvOTjeaE
 {% endset %}
-        <pre
-          class="mx-auto mt-6 max-w-xl cursor-pointer overflow-scroll rounded-xl bg-black p-4 text-left font-mono text-lg/8 text-gray-300 hover:opacity-50"
-          _="on click call navigator.clipboard.writeText(my innerText)"
-        >
+{# prettier-ignore-end #}
+
+        <div class="relative mx-auto mt-6 max-w-xl">
+          <pre
+            class="cursor-pointer overflow-scroll rounded-xl bg-black p-4 text-left font-mono text-lg/8 text-gray-300 hover:opacity-50"
+            _="on click call navigator.clipboard.writeText(my innerText) then remove .hidden from #clipboard-overlay then wait 2s then add .hidden to #clipboard-overlay"
+          >
 {{ curl_command | trim }}</pre
-        >
+          >
+          <div
+            id="clipboard-overlay"
+            class="absolute inset-0 flex hidden items-center justify-center rounded-xl bg-white bg-opacity-75"
+          >
+            <span class="text-lg font-semibold text-gray-900"
+              >Copied to the clipboard</span
+            >
+          </div>
+        </div>
 
         <div class="mt-10 flex items-center justify-center gap-x-6">
           <a
