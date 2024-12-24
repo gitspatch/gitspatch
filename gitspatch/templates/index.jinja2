@@ -2,6 +2,37 @@
 
 {% block title %}Gitspatch · Trigger GitHub Actions from anywhere{% endblock %}
 
+{% block meta %}
+  <meta
+    name="description"
+    content="Gitspatch allows you to trigger GitHub Actions from anywhere. Automate your workflows with ease."
+  />
+  <meta
+    name="keywords"
+    content="GitHub, Actions, Automation, Webhooks, CI/CD"
+  />
+  <meta name="author" content="Gitspatch" />
+  <meta property="og:type" content="website" />
+  <meta
+    property="og:title"
+    content="Gitspatch · Trigger GitHub Actions from anywhere"
+  />
+  <meta
+    property="og:description"
+    content="Gitspatch allows you to trigger GitHub Actions from anywhere. Automate your workflows with ease."
+  />
+  <meta property="og:url" content="{{ url_for('homepage') }}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta
+    name="twitter:title"
+    content="Gitspatch · Trigger GitHub Actions from anywhere"
+  />
+  <meta
+    name="twitter:description"
+    content="Gitspatch allows you to trigger GitHub Actions from anywhere. Automate your workflows with ease."
+  />
+{% endblock %}
+
 {% block body %}
   <main>
     <div class="relative isolate overflow-hidden bg-white">

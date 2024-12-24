@@ -51,7 +51,7 @@ async def healthz(request: Request) -> JSONResponse:
 
 
 routes = [
-    Route("/", homepage),
+    Route("/", homepage, name="homepage"),
     Route("/healthz", healthz),
     Mount("/action", routes=action),
     Mount("/app", routes=app),
