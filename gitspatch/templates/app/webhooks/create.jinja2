@@ -1,31 +1,60 @@
 {% extends "app/layout.jinja2" %}
-
 {% import "macros/forms.jinja2" as forms %}
 
 {% block content %}
-<div class="space-y-10 divide-y divide-gray-900/10">
-  <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
-    <div class="px-4 sm:px-0">
-      <h2 class="text-base/7 font-semibold text-gray-900">Basics</h2>
-      <p class="mt-1 text-sm/6 text-gray-600">Select a repository, a workflow and we'll be good to go!</p>
-    </div>
+  <div class="space-y-10 divide-y divide-gray-900/10">
+    <div class="grid grid-cols-1 gap-x-8 gap-y-8 md:grid-cols-3">
+      <div class="px-4 sm:px-0">
+        <h2 class="text-base/7 font-semibold text-gray-900">Basics</h2>
+        <p class="mt-1 text-sm/6 text-gray-600">
+          Select a repository, a workflow and we'll be good to go!
+        </p>
+      </div>
 
-    <form method="post" action="{{ url_for('app:webhooks:create') }}" class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2">
-      <div class="px-4 py-6 sm:p-8">
-        <div class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-          <div class="sm:col-span-4">
-            {{ forms.form_field(form.repository) }}
-          </div>
-          <div class="sm:col-span-4">
-            {{ forms.form_field(form.workflow_id) }}
+      <form
+        method="post"
+        action="{{ url_for('app:webhooks:create') }}"
+        class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2"
+      >
+        <div class="px-4 py-6 sm:p-8">
+          <div
+            class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6"
+          >
+            <div class="sm:col-span-4">
+              {{ forms.form_field(form.repository) }}
+              <p
+                class="mt-2 text-sm text-gray-500"
+                id="{{ form.repository.id }}-description"
+              >
+                Don't see your repository?
+                <a
+                  href="{{ installation_url }}"
+                  class="text-indigo-600 hover:text-indigo-900"
+                  >Manage your GitHub app installation</a
+                >
+              </p>
+            </div>
+            <div class="sm:col-span-4">
+              {{ forms.form_field(form.workflow_id) }}
+            </div>
           </div>
         </div>
-      </div>
-      <div class="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8">
-        <a href="{{ url_for('app:index') }}" class="text-sm/6 font-semibold text-gray-900">Cancel</a>
-        <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Create</button>
-      </div>
-    </form>
+        <div
+          class="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8"
+        >
+          <a
+            href="{{ url_for('app:index') }}"
+            class="text-sm/6 font-semibold text-gray-900"
+            >Cancel</a
+          >
+          <button
+            type="submit"
+            class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
+            Create
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
-</div>
 {% endblock %}

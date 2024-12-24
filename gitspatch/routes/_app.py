@@ -59,7 +59,12 @@ async def webhooks_create(request: AuthenticatedRequest) -> Response:
     return templates.TemplateResponse(
         request,
         "app/webhooks/create.jinja2",
-        {"page_title": "Create Webhook", "user": request.state.user, "form": form},
+        {
+            "page_title": "Create Webhook",
+            "user": request.state.user,
+            "installation_url": request.state.settings.get_github_installation_url(),
+            "form": form,
+        },
     )
 
 
@@ -92,6 +97,7 @@ async def webhooks_get(request: AuthenticatedRequest) -> Response:
             "user": request.state.user,
             "webhook": webhook,
             "token": token,
+            "installation_url": request.state.settings.get_github_installation_url(),
             "form": form,
         },
     )

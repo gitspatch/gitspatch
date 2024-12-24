@@ -55,6 +55,7 @@ class Settings(BaseSettings):
     user_session_cookie_max_age: timedelta = timedelta(days=7)
     user_session_cookie_secure: bool = True
 
+    github_app_name: str
     github_client_id: str
     github_client_secret: str
     github_private_key: str
@@ -72,6 +73,9 @@ class Settings(BaseSettings):
             client_id=self.github_client_id,
             client_secret=self.github_client_secret,
         )
+
+    def get_github_installation_url(self) -> str:
+        return f"https://github.com/apps/{self.github_app_name}/installations/new"
 
 
 class SettingsMiddleware:
