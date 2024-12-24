@@ -25,5 +25,5 @@ jobs:
         with:
           event_id: ${{ github.event.inputs.webhook_event_id }}
           event_payload: ${{ github.event.inputs.webhook_event_payload }}
-      - name: Hello ${{ steps.gitspatch.outputs.payload.name }}
-        run: echo "Hello ${{ steps.gitspatch.outputs.payload.name }}"
+      - name: Hello ${{ fromJSON(github.event.inputs.webhook_event_payload).name }}
+        run: echo "Hello ${{ fromJSON(github.event.inputs.webhook_event_payload).name }}"
