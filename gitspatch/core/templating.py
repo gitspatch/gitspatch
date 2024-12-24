@@ -50,5 +50,6 @@ templates = Jinja2Templates(directory=Path(__file__).parent.parent / "templates"
 templates.env.filters["datetime"] = format_datetime
 templates.env.globals["current_route"] = current_route
 templates.env.globals["generate_paginated_url"] = generate_paginated_url
+templates.env.globals["current_year"] = datetime.now().year
 
 __all__ = ["templates", "TemplateResponse"]

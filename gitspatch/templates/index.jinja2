@@ -1,8 +1,519 @@
 {% extends "base.jinja2" %}
 
-{% block title %}Gitspatch{% endblock %}
+{% block title %}Gitspatch · Trigger GitHub Actions from anywhere{% endblock %}
 
 {% block body %}
-<h1>Welcome!</h1>
-<a href="{{ url_for('auth:login') }}">Login</a>
+  <main>
+    <div class="relative isolate overflow-hidden bg-white">
+      <svg
+        class="absolute inset-0 -z-10 size-full stroke-gray-200 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]"
+        aria-hidden="true"
+      >
+        <defs>
+          <pattern
+            id="0787a7c5-978c-4f66-83c7-11c213f99cb7"
+            width="200"
+            height="200"
+            x="50%"
+            y="-1"
+            patternUnits="userSpaceOnUse"
+          >
+            <path d="M.5 200V.5H200" fill="none" />
+          </pattern>
+        </defs>
+        <rect
+          width="100%"
+          height="100%"
+          stroke-width="0"
+          fill="url(#0787a7c5-978c-4f66-83c7-11c213f99cb7)"
+        />
+      </svg>
+      <div
+        class="mx-auto max-w-7xl px-6 pb-24 pt-10 sm:pb-32 lg:flex lg:px-8 lg:py-40"
+      >
+        <div class="mx-auto max-w-2xl lg:mx-0 lg:shrink-0 lg:pt-8">
+          <div class="flex flex-row items-center gap-4">
+            <img
+              class="h-11"
+              src="{{ url_for('static', path='logo.svg') }}"
+              alt="Gitspatch"
+              _="
+            on mousemove from document queue first add .animate-spin on me
+            on mousemove from document queue last wait 1s then remove .animate-spin from me
+          "
+            />
+            <div class="text-3xl font-semibold text-gray-900">Gitspatch</div>
+          </div>
+          <div class="mt-24 sm:mt-32 lg:mt-16">
+            <div class="inline-flex space-x-6">
+              <span
+                class="rounded-full bg-indigo-600/10 px-3 py-1 text-sm/6 font-semibold text-indigo-600 ring-1 ring-inset ring-indigo-600/10"
+                >Now in beta</span
+              >
+            </div>
+          </div>
+          <h1
+            class="mt-10 text-pretty text-5xl font-semibold tracking-tight text-gray-900 sm:text-7xl"
+          >
+            Trigger GitHub Actions from anywhere
+          </h1>
+          <p
+            class="mt-8 text-pretty text-lg font-medium text-gray-500 sm:text-xl/8"
+          >
+            Plug webhooks into powerful workflows backed by GitHub Actions —
+            zero infrastructure needed.
+          </p>
+          <div class="mt-10 flex items-center gap-x-6">
+            <a
+              href="{{ url_for('app:webhooks:create') }}"
+              class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >Start automating</a
+            >
+            <a
+              href="#how-it-works"
+              class="text-sm/6 font-semibold text-gray-900"
+              >Learn more <span aria-hidden="true">→</span></a
+            >
+          </div>
+        </div>
+        <div
+          class="mx-auto mt-16 flex max-w-2xl sm:mt-24 lg:ml-10 lg:mr-0 lg:mt-0 lg:max-w-none lg:flex-none xl:ml-32"
+        >
+          <div class="max-w-3xl flex-none sm:max-w-5xl lg:max-w-none">
+            <div
+              class="-m-2 rounded-xl bg-gray-900/5 p-2 ring-1 ring-inset ring-gray-900/10 lg:-m-4 lg:rounded-2xl lg:p-4"
+            >
+              <img
+                src="{{ url_for('static', path='github-screenshot.png') }}"
+                alt="GitHub Actions with Gitspatch"
+                class="w-[76rem] rounded-md shadow-2xl ring-1 ring-gray-900/10"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mx-auto max-w-7xl px-6 lg:px-8">
+      <h2 class="text-center text-lg/8 font-semibold text-gray-900">
+        Works with <span class="italic">all</span> the tools you love
+      </h2>
+      <div
+        class="mx-auto mt-10 grid max-w-lg grid-cols-4 items-center gap-x-8 gap-y-10 sm:max-w-xl sm:grid-cols-6 sm:gap-x-10 lg:mx-0 lg:max-w-none lg:grid-cols-5"
+      >
+        <img
+          class="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
+          src="{{ url_for('static', path='logos/stripe.svg') }}"
+          alt="Stripe"
+        />
+        <img
+          class="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
+          src="{{ url_for('static', path='logos/linear.svg') }}"
+          alt="Linear"
+        />
+        <img
+          class="col-span-2 max-h-12 w-full object-contain lg:col-span-1"
+          src="{{ url_for('static', path='logos/resend.svg') }}"
+          alt="Resend"
+        />
+        <img
+          class="col-span-2 max-h-12 w-full object-contain sm:col-start-2 lg:col-span-1"
+          src="{{ url_for('static', path='logos/plain.svg') }}"
+          alt="Plain"
+        />
+        <img
+          class="col-span-2 col-start-2 max-h-12 w-full object-contain sm:col-start-auto lg:col-span-1"
+          src="{{ url_for('static', path='logos/polar.svg') }}"
+          alt="Polar"
+        />
+      </div>
+    </div>
+
+    <div
+      class="mx-auto mt-32 max-w-7xl px-6 sm:mt-56 lg:px-8"
+      id="how-it-works"
+    >
+      <div class="mx-auto max-w-2xl lg:text-center">
+        <h2 class="text-base/7 font-semibold text-indigo-600">How it works</h2>
+        <p
+          class="mt-2 text-pretty text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl lg:text-balance"
+        >
+          We connect your webhooks directly to your workflows
+        </p>
+        <p class="mt-6 text-lg/8 text-gray-600">
+          Get a unique URL that connects your webhooks directly to GitHub
+          Actions workflows. Just copy-paste it to your services — no code, no
+          configuration needed.
+        </p>
+      </div>
+      <div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
+        <dl
+          class="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3"
+        >
+          <div class="flex flex-col">
+            <dt
+              class="flex items-center gap-x-3 text-base/7 font-semibold text-gray-900"
+            >
+              <svg
+                class="size-5 flex-none text-indigo-600"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              1. Install our GitHub application
+            </dt>
+            <dd class="mt-4 flex flex-auto flex-col text-base/7 text-gray-600">
+              <p class="flex-auto">
+                Gitspatch gets access to your repositories so it can trigger
+                workflows on your behalf.
+              </p>
+            </dd>
+          </div>
+          <div class="flex flex-col">
+            <dt
+              class="flex items-center gap-x-3 text-base/7 font-semibold text-gray-900"
+            >
+              <svg
+                class="size-5 flex-none text-indigo-600"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+                data-slot="icon"
+              >
+                <path
+                  d="M12.232 4.232a2.5 2.5 0 0 1 3.536 3.536l-1.225 1.224a.75.75 0 0 0 1.061 1.06l1.224-1.224a4 4 0 0 0-5.656-5.656l-3 3a4 4 0 0 0 .225 5.865.75.75 0 0 0 .977-1.138 2.5 2.5 0 0 1-.142-3.667l3-3Z"
+                />
+                <path
+                  d="M11.603 7.963a.75.75 0 0 0-.977 1.138 2.5 2.5 0 0 1 .142 3.667l-3 3a2.5 2.5 0 0 1-3.536-3.536l1.225-1.224a.75.75 0 0 0-1.061-1.06l-1.224 1.224a4 4 0 1 0 5.656 5.656l3-3a4 4 0 0 0-.225-5.865Z"
+                />
+              </svg>
+              2. Create your webhook URL
+            </dt>
+            <dd class="mt-4 flex flex-auto flex-col text-base/7 text-gray-600">
+              <p class="flex-auto">
+                Gitspatch generates a secret URL which will trigger workflows
+                when called. Of course, the payload is forwarded to the CI.
+              </p>
+            </dd>
+          </div>
+          <div class="flex flex-col">
+            <dt
+              class="flex items-center gap-x-3 text-base/7 font-semibold text-gray-900"
+            >
+              <svg
+                class="size-5 flex-none text-indigo-600"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+                data-slot="icon"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.989a.75.75 0 0 0-.75.75v4.242a.75.75 0 0 0 1.5 0v-2.43l.31.31a7 7 0 0 0 11.712-3.138.75.75 0 0 0-1.449-.39Zm1.23-3.723a.75.75 0 0 0 .219-.53V2.929a.75.75 0 0 0-1.5 0V5.36l-.31-.31A7 7 0 0 0 3.239 8.188a.75.75 0 1 0 1.448.389A5.5 5.5 0 0 1 13.89 6.11l.311.31h-2.432a.75.75 0 0 0 0 1.5h4.243a.75.75 0 0 0 .53-.219Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              3. Automate everything
+            </dt>
+            <dd class="mt-4 flex flex-auto flex-col text-base/7 text-gray-600">
+              <p class="flex-auto">
+                Leverage GitHub Actions' full power: run scripts, use
+                containers, automate anything. Zero infrastructure, instant
+                monitoring.
+              </p>
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="mx-auto mt-32 max-w-7xl sm:mt-56 sm:px-6 lg:px-8">
+      <div
+        class="relative isolate overflow-hidden bg-gray-900 px-6 py-24 text-center shadow-2xl sm:rounded-3xl sm:px-16"
+      >
+        <h2
+          class="text-balance text-4xl font-semibold tracking-tight text-white sm:text-5xl"
+        >
+          Try it out now
+        </h2>
+        <p class="mx-auto mt-6 max-w-xl text-pretty text-lg/8 text-gray-300">
+          Copy the cURL command below and run it in your favorite terminal.
+        </p>
+        <!-- prettier-ignore -->
+        {% set curl_command %}
+curl -X POST \
+-H "Content-Type: application/json" \
+-d '{"name": "Anonymous"}' \
+https://www.gitspatch.dev/wh/669VPYnfzWxPbPXOEriaQdCFEfyD8SXXxQKrvOTjeaE
+{% endset %}
+        <pre
+          class="mx-auto mt-6 max-w-xl cursor-pointer overflow-scroll rounded-xl bg-black p-4 text-left font-mono text-lg/8 text-gray-300 hover:opacity-50"
+          _="on click call navigator.clipboard.writeText(my innerText)"
+        >
+{{ curl_command | trim }}</pre
+        >
+
+        <div class="mt-10 flex items-center justify-center gap-x-6">
+          <a
+            href="https://github.com/gitspatch/gitspatch/actions/workflows/demo.yml"
+            class="text-sm/6 font-semibold text-white"
+            target="_blank"
+            rel="noopener noreferrer"
+            >See the result on GitHub<span aria-hidden="true">→</span></a
+          >
+        </div>
+        <svg
+          viewBox="0 0 1024 1024"
+          class="absolute left-1/2 top-1/2 -z-10 size-[64rem] -translate-x-1/2 [mask-image:radial-gradient(closest-side,white,transparent)]"
+          aria-hidden="true"
+        >
+          <circle
+            cx="512"
+            cy="512"
+            r="512"
+            fill="url(#827591b1-ce8c-4110-b064-7cb85a0b1217)"
+            fill-opacity="0.7"
+          />
+          <defs>
+            <radialGradient id="827591b1-ce8c-4110-b064-7cb85a0b1217">
+              <stop stop-color="#7775D6" />
+              <stop offset="1" stop-color="#E935C1" />
+            </radialGradient>
+          </defs>
+        </svg>
+      </div>
+    </div>
+
+    <div class="py-24 sm:pt-48">
+      <div class="mx-auto max-w-4xl text-center">
+        <h2 class="text-base/7 font-semibold text-indigo-600">Pricing</h2>
+        <p
+          class="mt-2 text-balance text-5xl font-semibold tracking-tight text-gray-900 sm:text-6xl"
+        >
+          Cheaper than any automation platform
+        </p>
+      </div>
+      <div
+        class="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-x-0 gap-y-6 sm:mt-20 sm:gap-x-6 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2"
+      >
+        <div
+          class="rounded-3xl bg-white p-8 shadow-2xl ring-1 ring-gray-900/10 sm:p-10"
+        >
+          <h3 id="tier-free" class="text-base/7 font-semibold text-indigo-600">
+            Free
+          </h3>
+          <p class="mt-4 flex items-baseline gap-x-2">
+            <span class="text-5xl font-semibold tracking-tight text-gray-900"
+              >Free</span
+            >
+            <span class="text-base text-gray-500">forever</span>
+          </p>
+          <p class="mt-6 text-base/7 text-gray-600">
+            Try Gitspatch for free with one webhook.
+          </p>
+          <ul
+            role="list"
+            class="mt-8 space-y-3 text-sm/6 text-gray-600 sm:mt-10"
+          >
+            <li class="flex gap-x-3">
+              <svg
+                class="h-6 w-5 flex-none text-indigo-600"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+                data-slot="icon"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              1 webhook
+            </li>
+            <li class="flex gap-x-3">
+              <svg
+                class="h-6 w-5 flex-none text-indigo-600"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+                data-slot="icon"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              Unlimited events
+            </li>
+            <li class="flex gap-x-3">
+              <svg
+                class="h-6 w-5 flex-none text-indigo-600"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+                data-slot="icon"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              Community support
+            </li>
+          </ul>
+          <a
+            href="{{ url_for('app:webhooks:create') }}"
+            aria-describedby="tier-free"
+            class="mt-8 block rounded-md px-3.5 py-2.5 text-center text-sm font-semibold text-indigo-600 ring-1 ring-inset ring-indigo-200 hover:ring-indigo-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:mt-10"
+            >Sign up for free</a
+          >
+        </div>
+        <div
+          class="rounded-3xl bg-white p-8 shadow-2xl ring-1 ring-gray-900/10 sm:p-10"
+        >
+          <h3 id="tier-pro" class="text-base/7 font-semibold text-indigo-600">
+            Pro
+          </h3>
+          <p class="mt-4 flex items-baseline gap-x-2">
+            <span class="text-5xl font-semibold tracking-tight text-gray-900"
+              >$5</span
+            >
+            <span class="text-base text-gray-500">/month (excl. VAT)</span>
+          </p>
+          <p class="mt-6 text-base/7 text-gray-600">
+            Unlimited webhooks and events.
+          </p>
+          <ul
+            role="list"
+            class="mt-8 space-y-3 text-sm/6 text-gray-600 sm:mt-10"
+          >
+            <li class="flex gap-x-3">
+              <svg
+                class="h-6 w-5 flex-none text-indigo-600"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+                data-slot="icon"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              Unlimited webhooks
+            </li>
+            <li class="flex gap-x-3">
+              <svg
+                class="h-6 w-5 flex-none text-indigo-600"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+                data-slot="icon"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              Unlimited events
+            </li>
+            <li class="flex gap-x-3">
+              <svg
+                class="h-6 w-5 flex-none text-indigo-600"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+                data-slot="icon"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              Email support
+            </li>
+          </ul>
+          <a
+            href="#"
+            aria-describedby="tier-pro"
+            class="mt-8 block rounded-md bg-indigo-600 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 sm:mt-10"
+            >Get started today</a
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-32 px-6 lg:px-8">
+      <div class="mx-auto max-w-2xl text-center">
+        <h2
+          class="text-balance text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl"
+        >
+          We're open source too
+        </h2>
+        <p class="mx-auto mt-6 max-w-xl text-pretty text-lg/8 text-gray-600">
+          We build in public and our source code is available on GitHub. Feel
+          free to check it out, or even host it yourself.
+        </p>
+        <div class="mt-10 flex items-center justify-center gap-x-6">
+          <a
+            href="http://github.com/gitspatch/gitspatch"
+            class="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >Review the code</a
+          >
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-white">
+    <div class="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
+      <nav
+        class="-mb-6 flex flex-wrap justify-center gap-x-12 gap-y-3 text-sm/6"
+        aria-label="Footer"
+      >
+        <a href="#" class="text-gray-600 hover:text-gray-900">Docs</a>
+        <a
+          href="http://github.com/gitspatch/gitspatch"
+          class="text-gray-600 hover:text-gray-900"
+          >Source code</a
+        >
+        <a href="#" class="text-gray-600 hover:text-gray-900">Terms</a>
+      </nav>
+      <div class="mt-16 flex justify-center gap-x-10">
+        <a
+          href="http://github.com/gitspatch"
+          class="text-gray-600 hover:text-gray-800"
+        >
+          <span class="sr-only">GitHub</span>
+          <svg
+            class="size-6"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </a>
+      </div>
+      <p class="mt-10 text-center text-sm/6 text-gray-600">
+        {{ current_year }} - All rights reserved
+      </p>
+    </div>
+  </footer>
 {% endblock %}
