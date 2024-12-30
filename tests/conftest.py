@@ -99,7 +99,8 @@ class TestApp(App):
 @pytest.fixture
 def settings() -> Settings:
     return Settings(
-        database_url="postgresql+asyncpg://gitspatch:gitspatch@localhost:5432/gitspatch-test"  # type: ignore
+        _env_file=".env.testing",  # type: ignore
+        database_url="postgresql+asyncpg://gitspatch:gitspatch@localhost:5432/gitspatch-test",  # type: ignore
     )
 
 
