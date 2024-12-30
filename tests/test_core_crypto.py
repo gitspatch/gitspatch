@@ -15,7 +15,7 @@ def _base62_to_crc32(encoded: str) -> int:
     return number
 
 
-def test_generate_token(i: int, settings: Settings) -> None:
+def test_generate_token(settings: Settings) -> None:
     token, _ = generate_token(prefix=PREFIX, secret=settings.secret)
 
     assert token.startswith(PREFIX)
