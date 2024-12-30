@@ -81,8 +81,8 @@ class DispatcherService:
             webhook.workflow_id,
             access_token,
             {
-                "webhook_event_id": event.id,
-                "webhook_event_payload": event.payload,
+                "event_id": event.id,
+                "event_payload": event.payload,
             },
         )
 

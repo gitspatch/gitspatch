@@ -3,10 +3,10 @@ name: Website Demo
 on:
   workflow_dispatch:
     inputs:
-      webhook_event_id:
+      event_id:
         description: 'Event ID from Gitspatch'
         required: true
-      webhook_event_payload:
+      event_payload:
           description: 'Original webhook payload as string'
           required: false
 
@@ -16,14 +16,14 @@ permissions:
 
 jobs:
   demo:
-    name: Hello ${{ fromJSON(github.event.inputs.webhook_event_payload).name }}
+    name: Hello ${{ fromJSON(github.event.inputs.event_payload).name }}
     runs-on: ubuntu-latest
 
     steps:
       - uses: gitspatch/action@main
         id: gitspatch
         with:
-          event_id: ${{ github.event.inputs.webhook_event_id }}
-          event_payload: ${{ github.event.inputs.webhook_event_payload }}
-      - name: Hello ${{ fromJSON(github.event.inputs.webhook_event_payload).name }}
-        run: echo "Hello ${{ fromJSON(github.event.inputs.webhook_event_payload).name }}"
+          event_id: ${{ github.event.inputs.event_id }}
+          event_payload: ${{ github.event.inputs.event_payload }}
+      - name: Hello ${{ fromJSON(github.event.inputs.event_payload).name }}
+        run: echo "Hello ${{ fromJSON(github.event.inputs.event_payload).name }}"
