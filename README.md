@@ -4,7 +4,7 @@
     <em>Connect any webhook to GitHub Actions</em>
 </p>
 
-[![build](https://github.com/gitspatch/gitspatch/workflows/build.yml/badge.svg)](https://github.com/gitspatch/gitspatch/actions)
+[![build](https://github.com/gitspatch/gitspatch/workflows/Build/badge.svg)](https://github.com/gitspatch/gitspatch/actions)
 [![codecov](https://codecov.io/gh/gitspatch/gitspatch/branch/master/graph/badge.svg)](https://codecov.io/gh/gitspatch/gitspatch)
 [![PyPI version](https://badge.fury.io/py/gitspatch.svg)](https://badge.fury.io/py/gitspatch)
 
