@@ -6,8 +6,9 @@ repo_name: gitspatch/gitspatch
 
 theme:
     name: material
-    icon:
-        logo: material/directions
+    logo: assets/logo.svg
+    font:
+      text: Inter
     palette:
         # Palette toggle for automatic mode
         - media: "(prefers-color-scheme)"
@@ -18,8 +19,7 @@ theme:
         # Palette toggle for light mode
         - media: "(prefers-color-scheme: light)"
           scheme: default
-          primary: deep purple
-          accent: deep purple
+          primary: custom
           toggle:
             icon: material/brightness-7
             name: Switch to dark mode
@@ -27,11 +27,13 @@ theme:
         # Palette toggle for dark mode
         - media: "(prefers-color-scheme: dark)"
           scheme: slate
-          primary: deep purple
-          accent: deep purple
+          primary: custom
           toggle:
             icon: material/brightness-4
             name: Switch to light mode
+
+extra_css:
+  - stylesheets/extra.css
 
 markdown_extensions:
     - toc:
@@ -59,6 +61,4 @@ watch:
     - gitspatch
 
 nav:
-    - About: index.md
-    - Reference:
-        - gitspatch: reference/gitspatch.md
+  - About: index.md

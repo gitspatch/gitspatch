@@ -27,6 +27,10 @@ async def homepage(request: Request) -> TemplateResponse:
     return templates.TemplateResponse(request, "index.jinja2")
 
 
+async def terms(request: Request) -> TemplateResponse:
+    return templates.TemplateResponse(request, "terms.jinja2")
+
+
 async def healthz(request: Request) -> JSONResponse:
     database_available = False
     try:
@@ -52,6 +56,7 @@ async def healthz(request: Request) -> JSONResponse:
 
 routes = [
     Route("/", homepage, name="homepage"),
+    Route("/terms", terms, name="terms"),
     Route("/healthz", healthz),
     Mount("/action", routes=action),
     Mount("/app", routes=app),
