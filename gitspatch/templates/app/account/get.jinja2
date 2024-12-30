@@ -1,0 +1,53 @@
+{% extends "app/layout.jinja2" %}
+{% import "macros/icons.jinja2" as icons %}
+
+{% block content %}
+  {% if not user.webhooks_benefit_id %}
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+      <div class="px-4 py-5 sm:p-6">
+        <h3
+          class="flex items-center gap-2 text-base font-semibold text-gray-900"
+        >
+          {{ icons.rocket_launch('size-4') }} Unlock unlimited webhooks
+        </h3>
+        <div class="mt-2 max-w-xl text-sm text-gray-500">
+          <p>
+            You are currently limited to {{ user.max_webhooks }} webhook.
+            Upgrade to our paid plan to create unlimited webhooks.
+          </p>
+        </div>
+        <div class="mt-5">
+          <a
+            hx-boost="false"
+            href="{{ url_for('polar:checkout') }}"
+            class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+          >
+            Upgrade
+          </a>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+      <div class="px-4 py-5 sm:p-6">
+        <h3
+          class="flex items-center gap-2 text-base font-semibold text-gray-900"
+        >
+          {{ icons.check('size-4') }} Manage subscription
+        </h3>
+        <div class="mt-2 max-w-xl text-sm text-gray-500">
+          <p>You have access to unlimited webhooks.</p>
+        </div>
+        <div class="mt-5">
+          <a
+            hx-boost="false"
+            href="{{ url_for('polar:customer') }}"
+            class="inline-flex items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+          >
+            Manage
+          </a>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

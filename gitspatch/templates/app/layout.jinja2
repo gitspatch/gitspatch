@@ -57,6 +57,7 @@
             <div class="hidden sm:-my-px sm:ml-6 sm:flex sm:space-x-8">
               {{ menu_link(request, 'app:index', 'Webhooks') }}
               {{ menu_link(request, 'app:events:list', 'Events') }}
+              {{ menu_link(request, 'app:account:get', 'Account') }}
             </div>
           </div>
           <div class="hidden sm:ml-6 sm:flex sm:items-center">
@@ -166,6 +167,7 @@
         <div class="space-y-1 pb-3 pt-2">
           {{ mobile_menu_link(request, 'app:index', 'Webhooks') }}
           {{ mobile_menu_link(request, 'app:events:list', 'Events') }}
+          {{ mobile_menu_link(request, 'app:account:get', 'Account') }}
         </div>
         <div class="border-t border-gray-200 pb-3 pt-4">
           <div class="flex items-center px-4">

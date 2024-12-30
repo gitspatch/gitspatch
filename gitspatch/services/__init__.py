@@ -6,6 +6,7 @@ from ._github_oidc import (
     InvalidIDTokenError,
     get_github_oidc_service,
 )
+from ._polar import PolarService, get_polar_service
 from ._user import UserService, get_user_service
 from ._user_session import (
     UserSessionMiddleware,
@@ -24,6 +25,7 @@ __all__ = [
     "GitHubOIDCService",
     "GitHubService",
     "InstalledRepository",
+    "PolarService",
     "UserService",
     "UserSessionMiddleware",
     "UserSessionService",
@@ -34,6 +36,7 @@ __all__ = [
     "AlreadyUsedIDTokenError",
     "get_github_oidc_service",
     "get_github_service",
+    "get_polar_service",
     "get_user_service",
     "get_user_session_service",
     "get_webhook_event_delivery_service",

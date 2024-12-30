@@ -179,6 +179,15 @@ async def events_list(request: AuthenticatedRequest) -> Response:
     )
 
 
+@user_session
+async def account_get(request: AuthenticatedRequest) -> Response:
+    return templates.TemplateResponse(
+        request,
+        "app/account/get.jinja2",
+        {"page_title": "Account", "user": request.state.user},
+    )
+
+
 routes = [
     Route(
         "/",
@@ -213,5 +222,10 @@ routes = [
         "/events",
         events_list,
         name="app:events:list",
+    ),
+    Route(
+        "/account",
+        account_get,
+        name="app:account:get",
     ),
 ]

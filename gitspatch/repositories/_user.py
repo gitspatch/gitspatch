@@ -11,3 +11,7 @@ class UserRepository(Repository[User]):
     async def get_by_github_account_id(self, github_account_id: str) -> User | None:
         statement = select(User).where(User.github_account_id == github_account_id)
         return await self.get_one_or_none(statement)
+
+    async def get_by_customer_id(self, customer_id: str) -> User | None:
+        statement = select(User).where(User.customer_id == customer_id)
+        return await self.get_one_or_none(statement)

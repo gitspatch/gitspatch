@@ -1,7 +1,7 @@
 from typing import Any
 
 from httpx_oauth.oauth2 import OAuth2Token
-from sqlalchemy import JSON, String
+from sqlalchemy import JSON, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from gitspatch.models._timestamp import TimestampMixin
@@ -19,6 +19,10 @@ class User(IDModel, TimestampMixin, Base):
     _github_token: Mapped[dict[str, Any]] = mapped_column(
         "github_token", JSON, nullable=False
     )
+
+    max_webhooks: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    webhooks_benefit_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    customer_id: Mapped[str | None] = mapped_column(String, nullable=True)
 
     @property
     def github_token(self) -> OAuth2Token:

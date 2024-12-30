@@ -68,6 +68,12 @@ class Settings(BaseSettings):
 
     sentry_dsn: str | None = None
 
+    polar_environment: Literal["sandbox", "production"] = "sandbox"
+    polar_access_token: str
+    polar_webhook_secret: str
+    polar_product_id: str
+    polar_webhooks_benefit_id: str
+
     model_config = SettingsConfigDict(
         env_prefix="gitspatch_", env_file=".env", extra="ignore"
     )
