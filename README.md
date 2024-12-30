@@ -9,7 +9,7 @@
 
 ---
 
-**Documentation**: <a href="https://gitspatch.github.io/gitspatch/" target="_blank">https://gitspatch.github.io/gitspatch/</a>
+**Documentation**: <a href="https://docs.gitspatch.dev" target="_blank">https://docs.gitspatch.dev</a>
 
 **Source Code**: <a href="https://github.com/gitspatch/gitspatch" target="_blank">https://github.com/gitspatch/gitspatch</a>
 
