@@ -104,6 +104,32 @@ async def webhooks_get(request: AuthenticatedRequest) -> Response:
 
 
 @user_session
+async def webhooks_regenerate_token(request: AuthenticatedRequest) -> Response:
+    webhook_id = request.path_params["id"]
+    repository = get_repository(WebhookRepository, request)
+    webhook = await repository.get_by_id(webhook_id)
+
+    if webhook is None:
+        return HTMLResponse("Webhook not found", status_code=404)
+
+    if request.method == "POST":
+        webhook_service = get_webhook_service(request)
+        _, token = await webhook_service.regenerate_token(webhook)
+        request.session["webhook_token"] = token
+        return HTMXRedirectResponse(
+            request, request.url_for("app:webhooks:get", id=webhook.id), status_code=303
+        )
+
+    return templates.TemplateResponse(
+        request,
+        "app/webhooks/token.jinja2",
+        {
+            "webhook": webhook,
+        },
+    )
+
+
+@user_session
 async def webhooks_delete(request: AuthenticatedRequest) -> Response:
     webhook_id = request.path_params["id"]
     repository = get_repository(WebhookRepository, request)
@@ -170,6 +196,12 @@ routes = [
         webhooks_get,
         methods=["GET", "POST"],
         name="app:webhooks:get",
+    ),
+    Route(
+        "/webhooks/{id}/token",
+        webhooks_regenerate_token,
+        methods=["GET", "POST"],
+        name="app:webhooks:token",
     ),
     Route(
         "/webhooks/{id}/delete",

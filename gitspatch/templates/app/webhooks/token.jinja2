@@ -1,0 +1,12 @@
+{% import "macros/modals.jinja2" as modals %}
+
+{% set button_attrs | wordwrap %}
+  hx-post="{{ request.url_for("app:webhooks:token", id=webhook.id) }}"
+{% endset %}
+
+{% call modals.confirm(title="Regenerate secret URL for " + webhook.repository_full_name + " webhook", button_label="Regenerate", button_attrs=button_attrs) %}
+  <p class="text-sm text-gray-500">
+    Are you sure you want to regenerate this webhook secret URL? Services using
+    the current URL will stop working until you update them with the new one.
+  </p>
+{% endcall %}

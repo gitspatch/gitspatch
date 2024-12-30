@@ -80,7 +80,9 @@
     <div class="grid grid-cols-1 gap-x-8 gap-y-8 pt-10 md:grid-cols-3">
       <div class="px-4 sm:px-0">
         <h2 class="text-base/7 font-semibold text-gray-900">Danger zone</h2>
-        <p class="mt-1 text-sm/6 text-gray-600">Delete your webhook.</p>
+        <p class="mt-1 text-sm/6 text-gray-600">
+          Regenerate secret URL or delete your webhook.
+        </p>
       </div>
 
       <div
@@ -90,6 +92,16 @@
           <div
             class="grid max-w-2xl grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6"
           >
+            <div class="sm:col-span-3">
+              <button
+                type="button"
+                class="w-full rounded-md bg-red-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+                hx-get="{{ url_for('app:webhooks:token', id=webhook.id) }}"
+                hx-target="#modal"
+              >
+                Regenerate secret URL
+              </button>
+            </div>
             <div class="sm:col-span-3">
               <button
                 type="button"

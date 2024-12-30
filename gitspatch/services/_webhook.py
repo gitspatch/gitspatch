@@ -44,6 +44,12 @@ class WebhookService:
         await self._repository.update(webhook, autoflush=False)
         return webhook
 
+    async def regenerate_token(self, webhook: Webhook) -> tuple[Webhook, str]:
+        token, token_hash = generate_token(secret=self._settings.secret)
+        webhook.token = token_hash
+        await self._repository.update(webhook, autoflush=False)
+        return webhook, token
+
     async def get_by_token(self, token: str) -> Webhook | None:
         webhook = await self._repository.get_by_token(
             token, secret=self._settings.secret
