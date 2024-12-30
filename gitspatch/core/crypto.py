@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import secrets
+import string
 import zlib
 
 
@@ -9,15 +10,14 @@ def get_token_hash(token: str, *, secret: str) -> str:
     return hash.hexdigest()
 
 
-def b62encode(data: bytes) -> str:
+def _crc32_to_base62(number: int) -> str:
     characters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
     base = len(characters)
-    number = int.from_bytes(data, byteorder="big")
     encoded = ""
     while number:
         number, remainder = divmod(number, base)
         encoded = characters[remainder] + encoded
-    return encoded or "0"
+    return encoded.zfill(6)  # Ensure the checksum is 6 characters long
 
 
 def generate_token(*, prefix: str, secret: str) -> tuple[str, str]:
@@ -29,12 +29,13 @@ def generate_token(*, prefix: str, secret: str) -> tuple[str, str]:
     Only the latter shall be stored in database.
     """
     # Generate a high entropy random token
-    token_bytes = secrets.token_bytes()
-    token = b62encode(token_bytes)
+    token = "".join(
+        secrets.choice(string.ascii_letters + string.digits) for _ in range(32)
+    )
 
     # Calculate a 32-bit CRC checksum
     checksum = zlib.crc32(token.encode("utf-8")) & 0xFFFFFFFF
-    checksum_base62 = b62encode(checksum.to_bytes(4, byteorder="big"))
+    checksum_base62 = _crc32_to_base62(checksum)
 
     # Concatenate the prefix, token, and checksum
     full_token = f"{prefix}{token}{checksum_base62}"
