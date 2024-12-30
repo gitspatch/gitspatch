@@ -1,0 +1,34 @@
+{% macro step(title, label, status) %}
+  <li class="md:flex-1">
+    <div
+      {% if status == "completed" %}
+        class="group flex flex-col border-l-4 border-indigo-600 py-2 pl-4
+        hover:border-indigo-800 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0
+        md:pt-4"
+      {% elif status == "current" %}
+        class="flex flex-col border-l-4 border-indigo-600 py-2 pl-4
+        md:border-l-0 md:border-t-4 md:pb-0 md:pl-0 md:pt-4" aria-current="step"
+      {% elif status == "upcoming" %}
+        class="group flex flex-col border-l-4 border-gray-200 py-2 pl-4
+        hover:border-gray-300 md:border-l-0 md:border-t-4 md:pb-0 md:pl-0
+        md:pt-4"
+      {% endif %}
+    >
+      <span
+        class="text-sm font-medium text-indigo-600 group-hover:text-indigo-800"
+        >{{ title }}</span
+      >
+      <span class="text-sm font-medium">{{ label }}</span>
+    </div>
+  </li>
+{% endmacro %}
+
+{% macro progress(current) %}
+  <nav aria-label="Progress" class="mb-10">
+    <ol role="list" class="space-y-4 md:flex md:space-x-8 md:space-y-0">
+      {{ step("Step 1", "Select repository", "current" if current == 1 else "completed") }}
+      {{ step("Step 2", "Create workflow", "current" if current == 2 else ("upcoming" if current < 2 else "completed")) }}
+      {{ step("Step 3", "Save your secret URL", "current" if current == 3 else ("upcoming" if current < 3 else "completed")) }}
+    </ol>
+  </nav>
+{% endmacro %}

@@ -8,7 +8,8 @@ from starlette.routing import Route
 from gitspatch.core.request import AuthenticatedRequest, get_pagination
 from gitspatch.core.responses import HTMXRedirectResponse
 from gitspatch.core.templating import TemplateResponse, templates
-from gitspatch.forms import CreateWebhookForm, EditWebhookForm
+from gitspatch.forms import CreateWebhookFormStep1, EditWebhookForm
+from gitspatch.forms._webhook import CreateWebhookFormStep2
 from gitspatch.guards import user_session
 from gitspatch.models import User
 from gitspatch.repositories import (
@@ -81,31 +82,139 @@ async def webhooks_create(
         url = f"{request.url_for("app:account:get")}?upgrade=true"
         return HTMXRedirectResponse(request, url, status_code=303)
 
+    return HTMXRedirectResponse(
+        request, request.url_for("app:webhooks:create_step1"), status_code=303
+    )
+
+
+@user_session
+@app_context
+async def webhooks_create_step1(
+    request: AuthenticatedRequest, context: AppContext
+) -> Response:
+    user_service = get_user_service(request)
+
+    if not await user_service.can_create_webhook(request.state.user):
+        url = f"{request.url_for("app:account:get")}?upgrade=true"
+        return HTMXRedirectResponse(request, url, status_code=303)
+
     github_token = await user_service.get_github_token(request.state.user)
 
     github_service = get_github_service(request)
     repositories = await github_service.get_user_repositories(github_token)
 
     data = await request.form()
-    form = CreateWebhookForm(data)
+    form_session_data = request.session.get("create_webhook")
+    form = CreateWebhookFormStep1(data, data=form_session_data)
     form.populate_repository(repositories)
 
     if request.method == "POST" and form.validate():
-        webhook_service = get_webhook_service(request)
-        webhook, token = await webhook_service.create(request.state.user, form)
-        request.session["webhook_token"] = token
+        request.session["create_webhook"] = form.data
         return HTMXRedirectResponse(
-            request, request.url_for("app:webhooks:get", id=webhook.id), status_code=303
+            request, request.url_for("app:webhooks:create_step2"), status_code=303
         )
 
     return templates.TemplateResponse(
         request,
-        "app/webhooks/create.jinja2",
+        "app/webhooks/create/step1.jinja2",
         {
             **context,
             "page_title": "Create Webhook",
-            "installation_url": request.state.settings.get_github_installation_url(),
             "form": form,
+        },
+    )
+
+
+@user_session
+@app_context
+async def webhooks_create_step2(
+    request: AuthenticatedRequest, context: AppContext
+) -> Response:
+    user_service = get_user_service(request)
+
+    if not await user_service.can_create_webhook(request.state.user):
+        url = f"{request.url_for("app:account:get")}?upgrade=true"
+        return HTMXRedirectResponse(request, url, status_code=303)
+
+    form_session_data = request.session.get("create_webhook")
+    if form_session_data is None:
+        return HTMXRedirectResponse(
+            request, request.url_for("app:webhooks:create"), status_code=303
+        )
+
+    owner, repository, _ = form_session_data["repository"]
+    webhook_service = get_webhook_service(request)
+    workflow_template_url = webhook_service.generate_workflow_template_url(
+        workflow_id="gitspatch.yml", owner=owner, repository=repository
+    )
+
+    data = await request.form()
+    form = CreateWebhookFormStep2(data)
+
+    if request.method == "POST" and form.validate():
+        webhook_service = get_webhook_service(request)
+        owner, repository, repository_id = form_session_data["repository"]
+        request.session.pop("create_webhook")
+        workflow_id = form.workflow_id.data
+        assert workflow_id is not None
+        webhook, token = await webhook_service.create(
+            request.state.user,
+            owner=owner,
+            repository=repository,
+            repository_id=repository_id,
+            workflow_id=workflow_id,
+        )
+        request.session["webhook_token"] = token
+        request.session["webhook_id"] = webhook.id
+        return HTMXRedirectResponse(
+            request,
+            request.url_for("app:webhooks:create_step3"),
+            status_code=303,
+        )
+
+    return templates.TemplateResponse(
+        request,
+        "app/webhooks/create/step2.jinja2",
+        {
+            **context,
+            "page_title": "Create Webhook",
+            "workflow_template_url": workflow_template_url,
+            "form": form,
+        },
+    )
+
+
+@user_session
+@app_context
+async def webhooks_create_step3(
+    request: AuthenticatedRequest, context: AppContext
+) -> Response:
+    user_service = get_user_service(request)
+
+    if not await user_service.can_create_webhook(request.state.user):
+        url = f"{request.url_for("app:account:get")}?upgrade=true"
+        return HTMXRedirectResponse(request, url, status_code=303)
+
+    token: str | None = request.session.pop("webhook_token", None)
+    webhook_id: str | None = request.session.pop("webhook_id", None)
+    if token is None or webhook_id is None:
+        return HTMXRedirectResponse(
+            request, request.url_for("app:webhooks:create"), status_code=303
+        )
+
+    repository = get_repository(WebhookRepository, request)
+    webhook = await repository.get_by_id(webhook_id)
+    if webhook is None:
+        return HTMLResponse("Webhook not found", status_code=404)
+
+    return templates.TemplateResponse(
+        request,
+        "app/webhooks/create/step3.jinja2",
+        {
+            **context,
+            "page_title": "Create Webhook",
+            "token": token,
+            "webhook": webhook,
         },
     )
 
@@ -119,8 +228,6 @@ async def webhooks_get(request: AuthenticatedRequest, context: AppContext) -> Re
 
     if webhook is None:
         return HTMLResponse("Webhook not found", status_code=404)
-
-    token: str | None = request.session.pop("webhook_token", None)
 
     data = await request.form()
     form = EditWebhookForm(data, webhook)
@@ -139,7 +246,6 @@ async def webhooks_get(request: AuthenticatedRequest, context: AppContext) -> Re
             **context,
             "page_title": f"Webhook {webhook.repository_full_name}",
             "webhook": webhook,
-            "token": token,
             "installation_url": request.state.settings.get_github_installation_url(),
             "form": form,
         },
@@ -162,8 +268,9 @@ async def webhooks_regenerate_token(
         webhook_service = get_webhook_service(request)
         _, token = await webhook_service.regenerate_token(webhook)
         request.session["webhook_token"] = token
+        request.session["webhook_id"] = webhook.id
         return HTMXRedirectResponse(
-            request, request.url_for("app:webhooks:get", id=webhook.id), status_code=303
+            request, request.url_for("app:webhooks:create_step3"), status_code=303
         )
 
     return templates.TemplateResponse(
@@ -255,8 +362,26 @@ routes = [
     Route(
         "/webhooks/create",
         webhooks_create,
-        methods=["GET", "POST"],
+        methods=["GET"],
         name="app:webhooks:create",
+    ),
+    Route(
+        "/webhooks/create/step1",
+        webhooks_create_step1,
+        methods=["GET", "POST"],
+        name="app:webhooks:create_step1",
+    ),
+    Route(
+        "/webhooks/create/step2",
+        webhooks_create_step2,
+        methods=["GET", "POST"],
+        name="app:webhooks:create_step2",
+    ),
+    Route(
+        "/webhooks/create/step3",
+        webhooks_create_step3,
+        methods=["GET"],
+        name="app:webhooks:create_step3",
     ),
     Route(
         "/webhooks/{id}",

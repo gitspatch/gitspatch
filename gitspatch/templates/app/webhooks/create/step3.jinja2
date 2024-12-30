@@ -1,0 +1,38 @@
+{% extends "app/layout.jinja2" %}
+{% import "macros/buttons.jinja2" as buttons %}
+{% import "app/webhooks/create/progress.jinja2" as progress %}
+
+{% block content %}
+  {{ progress.progress(3) }}
+  <div class="space-y-10 divide-y divide-gray-900/10">
+    <div class="grid grid-cols-1 gap-x-8 gap-y-8">
+      <div class="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl">
+        <div class="flex flex-col gap-4 px-4 py-6 text-center sm:p-8">
+          <p class="text-4xl font-bold">Webhook created!</p>
+          <p class="font-medium text-gray-600">
+            Here is your secret webhook URL. Save it somewhere safe, it'll be
+            shown only once!
+          </p>
+          <div class="mt-4 flex w-full flex-row gap-2">
+            <pre
+              class="border-1 grow overflow-scroll rounded-md border border-green-500 bg-green-100 p-2 text-sm shadow-sm"
+            >
+{{ request.url_for('webhook:webhook', token=token) }}</pre
+            >
+            {{ buttons.clipboard(request.url_for('webhook:webhook', token=token), class="shrink-0 text-green-800 hover:text-green-900") }}
+          </div>
+        </div>
+        <div
+          class="flex items-center justify-end gap-x-6 border-t border-gray-900/10 px-4 py-4 sm:px-8"
+        >
+          <a
+            href="{{ url_for('app:events:list') }}?webhook_id={{ webhook.id }}"
+            class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
+            Done
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,7 +1,10 @@
+from urllib.parse import urlencode
+
 from gitspatch.core.crypto import generate_token
 from gitspatch.core.request import Request
 from gitspatch.core.settings import Settings
-from gitspatch.forms import CreateWebhookForm, EditWebhookForm
+from gitspatch.core.templating import templates
+from gitspatch.forms import EditWebhookForm
 from gitspatch.models import User, Webhook
 from gitspatch.repositories import WebhookRepository
 
@@ -19,8 +22,15 @@ class WebhookService:
         self._github_service = github_service
         self._settings = settings
 
-    async def create(self, user: User, form: CreateWebhookForm) -> tuple[Webhook, str]:
-        owner, repository, repository_id = form.repository.data
+    async def create(
+        self,
+        user: User,
+        *,
+        owner: str,
+        repository: str,
+        repository_id: int,
+        workflow_id: str,
+    ) -> tuple[Webhook, str]:
         installation_id = await self._github_service.get_repository_installation_id(
             owner, repository
         )
@@ -31,7 +41,7 @@ class WebhookService:
         webhook = Webhook(
             user=user,
             repository_id=repository_id,
-            workflow_id=form.workflow_id.data,
+            workflow_id=workflow_id,
             installation_id=installation_id,
             owner=owner,
             repository_name=repository,
@@ -59,6 +69,19 @@ class WebhookService:
             token, secret=self._settings.secret
         )
         return webhook
+
+    def generate_workflow_template(self) -> str:
+        template = templates.get_template("app/webhooks/workflow.yml.jinja2")
+        return template.render()
+
+    def generate_workflow_template_url(
+        self, workflow_id: str, owner: str, repository: str
+    ) -> str:
+        params = {
+            "filename": f".github/workflows/{workflow_id}",
+            "value": self.generate_workflow_template(),
+        }
+        return f"https://github.com/{owner}/{repository}/new/main?{urlencode(params)}"
 
 
 def get_webhook_service(request: Request) -> WebhookService:
