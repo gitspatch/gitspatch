@@ -21,7 +21,9 @@ class UserSessionService:
         self.settings = settings
 
     async def set_session(self, response: R, user: User) -> R:
-        token, token_hash = generate_token(secret=self.settings.secret)
+        token, token_hash = generate_token(
+            prefix=self.settings.user_session_token_prefix, secret=self.settings.secret
+        )
         expires_at = datetime.now(UTC) + self.settings.user_session_cookie_max_age
 
         user_session = UserSession(user=user, token=token_hash, expires_at=expires_at)

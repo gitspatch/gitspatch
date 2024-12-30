@@ -45,15 +45,19 @@ class Settings(BaseSettings):
     database_url: DatabaseDsn
     redis_url: RedisDsn
 
+    session_token_prefix: str = "gtsptch_s_"
     session_cookie_name: str = "gitspatch_session"
     session_cookie_max_age: timedelta = timedelta(days=1)
     session_cookie_path: str = "/"
     session_cookie_same_site: Literal["lax", "strict", "none"] = "strict"
     session_cookie_secure: bool = True
 
+    user_session_token_prefix: str = "gtsptch_us_"
     user_session_cookie_name: str = "gitspatch_user_session"
     user_session_cookie_max_age: timedelta = timedelta(days=7)
     user_session_cookie_secure: bool = True
+
+    webhook_token_prefix: str = "gtsptch_w_"
 
     github_app_name: str
     github_client_id: str

@@ -8,10 +8,15 @@ from structlog import get_logger
 
 from .crypto import generate_token, get_token_hash
 from .redis import Redis
+from .settings import Settings
 
 
 def get_redis(scope: Scope) -> Redis:
     return scope["state"]["redis"]
+
+
+def get_settings(scope: Scope) -> Settings:
+    return scope["state"]["settings"]
 
 
 class SessionMiddleware:
@@ -26,6 +31,7 @@ class SessionMiddleware:
         cookie_same_site: typing.Literal["lax", "strict", "none"],
         cookie_https_only: bool,
         get_redis: typing.Callable[[Scope], Redis] = get_redis,
+        get_settings: typing.Callable[[Scope], Settings] = get_settings,
     ) -> None:
         self.app = app
         self.secret = secret
@@ -36,6 +42,7 @@ class SessionMiddleware:
         if cookie_https_only:
             self.cookie_security_flags += "; secure"
         self.get_redis = get_redis
+        self.get_settings = get_settings
         self._logger = get_logger()
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
@@ -59,7 +66,10 @@ class SessionMiddleware:
                 scope["session"] = {}
         else:
             scope["session"] = {}
-            token, hash = generate_token(secret=self.secret)
+            settings = self.get_settings(scope)
+            token, hash = generate_token(
+                prefix=settings.session_token_prefix, secret=self.secret
+            )
 
         async def send_wrapper(message: Message) -> None:
             if message["type"] == "http.response.start":
