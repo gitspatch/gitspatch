@@ -1,8 +1,12 @@
-from starlette.responses import Response
+from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
 
 from gitspatch.core.request import Request
-from gitspatch.services import get_webhook_event_service, get_webhook_service
+from gitspatch.services import (
+    get_user_service,
+    get_webhook_event_service,
+    get_webhook_service,
+)
 from gitspatch.tasks.dispatcher import dispatcher_dispatch_event
 
 
@@ -14,6 +18,10 @@ async def webhook(request: Request) -> Response:
     if webhook is None:
         return Response(status_code=404)
 
+    user_service = get_user_service(request)
+    if await user_service.is_over_webhook_limit(webhook.user):
+        return Response(status_code=402)
+
     body = await request.body()
     payload = body.decode("utf-8")
 
@@ -22,7 +30,7 @@ async def webhook(request: Request) -> Response:
 
     request.state.task_queue.enqueue(dispatcher_dispatch_event, event.id)
 
-    return Response(status_code=202)
+    return JSONResponse({"id": event.id}, status_code=201)
 
 
 routes = [

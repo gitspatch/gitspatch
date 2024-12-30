@@ -44,6 +44,10 @@ class Repository(Generic[M]):
     async def delete(self, object: M) -> None:
         await self.session.delete(object)
 
+    async def count(self, statement: Select[tuple[M]]) -> int:
+        result = await self.session.execute(statement.with_only_columns(func.count()))
+        return result.scalar_one()
+
     async def paginate(
         self, statement: Select[tuple[M]], *, limit: int, offset: int
     ) -> tuple[list[M], int]:

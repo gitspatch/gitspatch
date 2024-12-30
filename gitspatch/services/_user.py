@@ -3,12 +3,18 @@ from httpx_oauth.oauth2 import OAuth2Token
 from gitspatch.core.request import Request
 from gitspatch.core.settings import Settings
 from gitspatch.models import User
-from gitspatch.repositories import UserRepository
+from gitspatch.repositories import UserRepository, WebhookRepository
 
 
 class UserService:
-    def __init__(self, repository: UserRepository, settings: Settings) -> None:
+    def __init__(
+        self,
+        repository: UserRepository,
+        webhook_repository: WebhookRepository,
+        settings: Settings,
+    ) -> None:
         self._repository = repository
+        self._webhook_repository = webhook_repository
         self._settings = settings
 
     async def get_github_token(self, user: User) -> OAuth2Token:
@@ -20,9 +26,16 @@ class UserService:
             await self._repository.update(user, autoflush=False)
         return token
 
+    async def is_over_webhook_limit(self, user: User) -> bool:
+        if user.unlimited_webhooks:
+            return False
+        count = await self._webhook_repository.count_by_user(user.id)
+        return count > user.max_webhooks
+
 
 def get_user_service(request: Request) -> UserService:
     return UserService(
         repository=UserRepository(request.state.session),
+        webhook_repository=WebhookRepository(request.state.session),
         settings=request.state.settings,
     )

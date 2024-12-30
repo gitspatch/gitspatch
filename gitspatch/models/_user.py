@@ -1,7 +1,8 @@
 from typing import Any
 
 from httpx_oauth.oauth2 import OAuth2Token
-from sqlalchemy import JSON, Integer, String
+from sqlalchemy import JSON, Boolean, ColumnElement, Integer, String, type_coerce
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
 
 from gitspatch.models._timestamp import TimestampMixin
@@ -35,3 +36,12 @@ class User(IDModel, TimestampMixin, Base):
     @property
     def profile_picture_url(self) -> str:
         return f"https://avatars.githubusercontent.com/u/{self.github_account_id}"
+
+    @hybrid_property
+    def unlimited_webhooks(self) -> bool:
+        return self.max_webhooks == -1
+
+    @unlimited_webhooks.inplace.expression
+    @classmethod
+    def _unlimited_webhooks_expression(cls) -> ColumnElement[bool]:
+        return type_coerce(cls.max_webhooks == -1, Boolean)
