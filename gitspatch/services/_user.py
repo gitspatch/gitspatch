@@ -26,6 +26,12 @@ class UserService:
             await self._repository.update(user, autoflush=False)
         return token
 
+    async def can_create_webhook(self, user: User) -> bool:
+        if user.unlimited_webhooks:
+            return True
+        count = await self._webhook_repository.count_by_user(user.id)
+        return count < user.max_webhooks
+
     async def is_over_webhook_limit(self, user: User) -> bool:
         if user.unlimited_webhooks:
             return False

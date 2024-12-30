@@ -39,6 +39,11 @@ async def index(request: AuthenticatedRequest) -> TemplateResponse:
 @user_session
 async def webhooks_create(request: AuthenticatedRequest) -> Response:
     user_service = get_user_service(request)
+
+    if not await user_service.can_create_webhook(request.state.user):
+        url = f"{request.url_for("app:account:get")}?upgrade=true"
+        return HTMXRedirectResponse(request, url, status_code=303)
+
     github_token = await user_service.get_github_token(request.state.user)
 
     github_service = get_github_service(request)
@@ -181,10 +186,15 @@ async def events_list(request: AuthenticatedRequest) -> Response:
 
 @user_session
 async def account_get(request: AuthenticatedRequest) -> Response:
+    upgrade_prompt = request.query_params.get("upgrade") == "true"
     return templates.TemplateResponse(
         request,
         "app/account/get.jinja2",
-        {"page_title": "Account", "user": request.state.user},
+        {
+            "page_title": "Account",
+            "upgrade_prompt": upgrade_prompt,
+            "user": request.state.user,
+        },
     )
 
 
