@@ -19,7 +19,7 @@ async def webhook(request: Request) -> Response:
         return Response(status_code=404)
 
     user_service = get_user_service(request)
-    if await user_service.is_over_webhook_limit(webhook.user):
+    if await user_service.is_over_webhooks_limit(webhook.user):
         return Response(status_code=402)
 
     body = await request.body()

@@ -32,7 +32,7 @@ class UserService:
         count = await self._webhook_repository.count_by_user(user.id)
         return count < user.max_webhooks
 
-    async def is_over_webhook_limit(self, user: User) -> bool:
+    async def is_over_webhooks_limit(self, user: User) -> bool:
         if user.unlimited_webhooks:
             return False
         count = await self._webhook_repository.count_by_user(user.id)

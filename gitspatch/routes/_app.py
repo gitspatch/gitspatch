@@ -1,3 +1,7 @@
+import functools
+from collections.abc import Awaitable, Callable
+from typing import Concatenate, ParamSpec, TypedDict, TypeVar
+
 from starlette.responses import HTMLResponse, Response
 from starlette.routing import Route
 
@@ -6,6 +10,7 @@ from gitspatch.core.responses import HTMXRedirectResponse
 from gitspatch.core.templating import TemplateResponse, templates
 from gitspatch.forms import CreateWebhookForm, EditWebhookForm
 from gitspatch.guards import user_session
+from gitspatch.models import User
 from gitspatch.repositories import (
     WebhookEventDeliveryRepository,
     WebhookRepository,
@@ -14,8 +19,37 @@ from gitspatch.repositories import (
 from gitspatch.services import get_github_service, get_user_service, get_webhook_service
 
 
+class AppContext(TypedDict):
+    user: User
+    is_over_webhooks_limit: bool
+
+
+P = ParamSpec("P")
+R = TypeVar("R")
+
+
+def app_context(
+    func: Callable[Concatenate[AuthenticatedRequest, AppContext, P], Awaitable[R]],
+) -> Callable[Concatenate[AuthenticatedRequest, P], Awaitable[R]]:
+    @functools.wraps(func)
+    async def wrapper(
+        request: AuthenticatedRequest, *args: P.args, **kwargs: P.kwargs
+    ) -> R:
+        user = request.state.user
+        user_service = get_user_service(request)
+        is_over_webhooks_limit = await user_service.is_over_webhooks_limit(user)
+        context: AppContext = {
+            "user": user,
+            "is_over_webhooks_limit": is_over_webhooks_limit,
+        }
+        return await func(request, context, *args, **kwargs)
+
+    return wrapper
+
+
 @user_session
-async def index(request: AuthenticatedRequest) -> TemplateResponse:
+@app_context
+async def index(request: AuthenticatedRequest, context: AppContext) -> TemplateResponse:
     user = request.state.user
     repository = get_repository(WebhookRepository, request)
 
@@ -26,8 +60,8 @@ async def index(request: AuthenticatedRequest) -> TemplateResponse:
         request,
         "app/index.jinja2",
         {
+            **context,
             "page_title": "Webhooks",
-            "user": user,
             "webhooks": webhooks,
             "skip": skip,
             "limit": limit,
@@ -37,7 +71,10 @@ async def index(request: AuthenticatedRequest) -> TemplateResponse:
 
 
 @user_session
-async def webhooks_create(request: AuthenticatedRequest) -> Response:
+@app_context
+async def webhooks_create(
+    request: AuthenticatedRequest, context: AppContext
+) -> Response:
     user_service = get_user_service(request)
 
     if not await user_service.can_create_webhook(request.state.user):
@@ -65,8 +102,8 @@ async def webhooks_create(request: AuthenticatedRequest) -> Response:
         request,
         "app/webhooks/create.jinja2",
         {
+            **context,
             "page_title": "Create Webhook",
-            "user": request.state.user,
             "installation_url": request.state.settings.get_github_installation_url(),
             "form": form,
         },
@@ -74,7 +111,8 @@ async def webhooks_create(request: AuthenticatedRequest) -> Response:
 
 
 @user_session
-async def webhooks_get(request: AuthenticatedRequest) -> Response:
+@app_context
+async def webhooks_get(request: AuthenticatedRequest, context: AppContext) -> Response:
     webhook_id = request.path_params["id"]
     repository = get_repository(WebhookRepository, request)
     webhook = await repository.get_by_id(webhook_id)
@@ -98,8 +136,8 @@ async def webhooks_get(request: AuthenticatedRequest) -> Response:
         request,
         "app/webhooks/get.jinja2",
         {
+            **context,
             "page_title": f"Webhook {webhook.repository_full_name}",
-            "user": request.state.user,
             "webhook": webhook,
             "token": token,
             "installation_url": request.state.settings.get_github_installation_url(),
@@ -109,7 +147,10 @@ async def webhooks_get(request: AuthenticatedRequest) -> Response:
 
 
 @user_session
-async def webhooks_regenerate_token(request: AuthenticatedRequest) -> Response:
+@app_context
+async def webhooks_regenerate_token(
+    request: AuthenticatedRequest, context: AppContext
+) -> Response:
     webhook_id = request.path_params["id"]
     repository = get_repository(WebhookRepository, request)
     webhook = await repository.get_by_id(webhook_id)
@@ -129,13 +170,17 @@ async def webhooks_regenerate_token(request: AuthenticatedRequest) -> Response:
         request,
         "app/webhooks/token.jinja2",
         {
+            **context,
             "webhook": webhook,
         },
     )
 
 
 @user_session
-async def webhooks_delete(request: AuthenticatedRequest) -> Response:
+@app_context
+async def webhooks_delete(
+    request: AuthenticatedRequest, context: AppContext
+) -> Response:
     webhook_id = request.path_params["id"]
     repository = get_repository(WebhookRepository, request)
     webhook = await repository.get_by_id(webhook_id)
@@ -153,13 +198,15 @@ async def webhooks_delete(request: AuthenticatedRequest) -> Response:
         request,
         "app/webhooks/delete.jinja2",
         {
+            **context,
             "webhook": webhook,
         },
     )
 
 
 @user_session
-async def events_list(request: AuthenticatedRequest) -> Response:
+@app_context
+async def events_list(request: AuthenticatedRequest, context: AppContext) -> Response:
     user = request.state.user
     repository = get_repository(WebhookEventDeliveryRepository, request)
 
@@ -174,8 +221,8 @@ async def events_list(request: AuthenticatedRequest) -> Response:
         request,
         "app/events/list.jinja2",
         {
+            **context,
             "page_title": "Events",
-            "user": request.state.user,
             "deliveries": deliveries,
             "skip": skip,
             "limit": limit,
@@ -185,15 +232,16 @@ async def events_list(request: AuthenticatedRequest) -> Response:
 
 
 @user_session
-async def account_get(request: AuthenticatedRequest) -> Response:
+@app_context
+async def account_get(request: AuthenticatedRequest, context: AppContext) -> Response:
     upgrade_prompt = request.query_params.get("upgrade") == "true"
     return templates.TemplateResponse(
         request,
         "app/account/get.jinja2",
         {
+            **context,
             "page_title": "Account",
             "upgrade_prompt": upgrade_prompt,
-            "user": request.state.user,
         },
     )
 
