@@ -121,5 +121,5 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://frankie567.github.io/gitspatch/"
-Source = "https://github.com/frankie567/gitspatch"
+Documentation = "https://gitspatch.github.io/gitspatch/"
+Source = "https://github.com/gitspatch/gitspatch"

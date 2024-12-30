@@ -1,8 +1,8 @@
 site_name: Gitspatch
 site_description: Connect any webhook to GitHub Actions
 
-repo_url: https://github.com/frankie567/gitspatch
-repo_name: frankie567/gitspatch
+repo_url: https://github.com/gitspatch/gitspatch
+repo_name: gitspatch/gitspatch
 
 theme:
     name: material

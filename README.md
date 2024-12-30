@@ -4,15 +4,15 @@
     <em>Connect any webhook to GitHub Actions</em>
 </p>
 
-[![build](https://github.com/frankie567/gitspatch/workflows/Build/badge.svg)](https://github.com/frankie567/gitspatch/actions)
-[![codecov](https://codecov.io/gh/frankie567/gitspatch/branch/master/graph/badge.svg)](https://codecov.io/gh/frankie567/gitspatch)
+[![build](https://github.com/gitspatch/gitspatch/workflows/build.yml/badge.svg)](https://github.com/gitspatch/gitspatch/actions)
+[![codecov](https://codecov.io/gh/gitspatch/gitspatch/branch/master/graph/badge.svg)](https://codecov.io/gh/gitspatch/gitspatch)
 [![PyPI version](https://badge.fury.io/py/gitspatch.svg)](https://badge.fury.io/py/gitspatch)
 
 ---
 
-**Documentation**: <a href="https://frankie567.github.io/gitspatch/" target="_blank">https://frankie567.github.io/gitspatch/</a>
+**Documentation**: <a href="https://gitspatch.github.io/gitspatch/" target="_blank">https://gitspatch.github.io/gitspatch/</a>
 
-**Source Code**: <a href="https://github.com/frankie567/gitspatch" target="_blank">https://github.com/frankie567/gitspatch</a>
+**Source Code**: <a href="https://github.com/gitspatch/gitspatch" target="_blank">https://github.com/gitspatch/gitspatch</a>
 
 ---
 
