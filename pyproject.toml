@@ -108,7 +108,7 @@ dependencies = [
     "httpx-oauth==0.16.1",
     "jinja2==3.1.5",
     "jwcrypto==1.5.6",
-    "orjson==3.10.13",
+    "orjson==3.10.14",
     "polar-sdk==0.11.1",
     "pydantic_settings==2.7.0",
     "python-multipart==0.0.20",
